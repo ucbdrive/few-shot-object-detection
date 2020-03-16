@@ -7,7 +7,6 @@ import json
 import logging
 import numpy as np
 import os
-import pickle
 import torch
 from collections import OrderedDict
 from fvcore.common.file_io import PathManager
@@ -18,7 +17,7 @@ from tabulate import tabulate
 import detectron2.utils.comm as comm
 from detectron2.data import MetadataCatalog
 from detectron2.data.datasets.coco import convert_to_coco_json
-from detectron2.structures import Boxes, BoxMode, pairwise_iou
+from detectron2.structures import BoxMode
 from detectron2.utils.logger import create_small_table
 
 from .evaluator import DatasetEvaluator

@@ -7,8 +7,6 @@ from detectron2.structures import BoxMode
 from fvcore.common.file_io import PathManager
 from detectron2.data import DatasetCatalog, MetadataCatalog
 
-from .lvis_v0_5_categories import LVIS_CATEGORIES
-
 """
 This file contains functions to parse LVIS-format annotations into dicts in the
 "Detectron2 format".
@@ -139,7 +137,6 @@ if __name__ == "__main__":
     import numpy as np
     from detectron2.utils.logger import setup_logger
     from PIL import Image
-    import detectron2.data.datasets  # noqa # add pre-defined metadata
     from detectron2.utils.visualizer import Visualizer
 
     logger = setup_logger(name=__name__)

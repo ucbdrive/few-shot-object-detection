@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 import random
-from collections import Counter
 
 
 def parse_args():
@@ -76,7 +75,6 @@ def generate_seeds(args):
 
 def get_save_path_seeds(path, cls, shots, seed):
     s = path.split('/')
-    file = s[-1]
     prefix = 'full_box_{}shot_{}_trainval'.format(shots, cls)
     save_dir = os.path.join('datasets', 'cocosplit', 'seed' + str(seed))
     os.makedirs(save_dir, exist_ok=True)

@@ -1,4 +1,3 @@
-import copy
 import torch
 import os
 import argparse

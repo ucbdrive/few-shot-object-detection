@@ -6,7 +6,6 @@ import os
 import datetime
 import json
 import numpy as np
-import imagesize
 
 from PIL import Image
 
@@ -290,7 +289,6 @@ if __name__ == "__main__":
     """
     from detectron2.utils.logger import setup_logger
     from detectron2.utils.visualizer import Visualizer
-    import detectron2.data.datasets  # noqa # add pre-defined metadata
     import sys
 
     logger = setup_logger(name=__name__)

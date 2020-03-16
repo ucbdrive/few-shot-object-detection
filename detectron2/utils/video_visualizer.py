@@ -79,9 +79,7 @@ class VideoVisualizer:
 
         if self._instance_mode == ColorMode.IMAGE_BW:
             # any() returns uint8 tensor
-            frame_visualizer.output.img = frame_visualizer._create_grayscale_image(
-                None
-            )
+            frame_visualizer.output.img = frame_visualizer._create_grayscale_image()
             alpha = 0.3
         else:
             alpha = 0.5

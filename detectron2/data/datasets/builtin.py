@@ -19,7 +19,7 @@ To add new dataset, refer to the tutorial "docs/DATASETS.md".
 
 import os
 
-from detectron2.data import MetadataCatalog, DatasetCatalog
+from detectron2.data import MetadataCatalog
 from .register_coco import register_coco_instances
 from .meta_coco import register_meta_coco
 from .lvis import register_lvis_instances

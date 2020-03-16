@@ -5,7 +5,6 @@ import random
 import numpy as np
 import xml.etree.ElementTree as ET
 from fvcore.common.file_io import PathManager
-from itertools import permutations
 
 
 VOC_CLASSES = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
@@ -50,7 +49,6 @@ def generate_seeds(args):
             c_data = []
             for j, shot in enumerate(shots):
                 diff_shot = shots[j] - shots[j-1] if j != 0 else 1
-                c_data_ = []
                 shots_c = random.sample(data_per_cat[c], diff_shot)
                 num_objs = 0
                 for s in shots_c:

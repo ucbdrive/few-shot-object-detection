@@ -58,7 +58,6 @@ def parse_args():
 
 def get_shots(args):
     data = json.load(open(args.data, 'r'))
-    images = data['images']
     ann = data['annotations']
 
     anno_cat = {i: [] for i in range(1230)}

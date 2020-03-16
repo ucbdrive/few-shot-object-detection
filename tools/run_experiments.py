@@ -1,12 +1,7 @@
 import argparse
-import glob
-import json
 import os
-import time
 import yaml
-import numpy as np
 from ast import literal_eval as make_tuple
-from collections import OrderedDict
 from subprocess import Popen, PIPE, STDOUT
 
 

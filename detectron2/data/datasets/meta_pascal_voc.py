@@ -10,7 +10,7 @@ from detectron2.structures import BoxMode
 from detectron2.data import DatasetCatalog, MetadataCatalog
 
 
-__all__ = ["register_pascal_voc"]
+__all__ = ["register_meta_pascal_voc"]
 
 
 def load_filtered_voc_instances(

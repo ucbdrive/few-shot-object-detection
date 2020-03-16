@@ -4,15 +4,10 @@
 import io
 import contextlib
 import os
-import datetime
-import json
 import numpy as np
-import imagesize
-
-from PIL import Image
 
 from detectron2.data import DatasetCatalog, MetadataCatalog
-from detectron2.structures import BoxMode, Boxes
+from detectron2.structures import BoxMode
 from fvcore.common.file_io import PathManager
 from pycocotools.coco import COCO
 
