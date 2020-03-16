@@ -1,0 +1,25 @@
+_BASE_: "../Base-RCNN-FPN.yaml"
+MODEL:
+  WEIGHTS: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_ft_novel_5shot_combine/model_reset_combine.pth"
+  MASK_ON: False
+  RESNETS:
+    DEPTH: 101
+  ROI_HEADS:
+    NUM_CLASSES: 80
+    OUTPUT_LAYER: "CosineSimOutputLayers"
+  #   FREEZE_FEAT: True
+  # BACKBONE:
+  #   FREEZE: True
+  # PROPOSAL_GENERATOR:
+  #   FREEZE: True
+DATASETS:
+  TRAIN: ('coco_trainval_all_5shot',)
+  TEST: ('coco_test_all',)
+SOLVER:
+  IMS_PER_BATCH: 16
+  BASE_LR: 0.001
+  STEPS: (72000,)
+  MAX_ITER: 80000
+  CHECKPOINT_PERIOD: 8000
+  WARMUP_ITERS: 0
+OUTPUT_DIR: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_ft_all_5shot_unfreeze"

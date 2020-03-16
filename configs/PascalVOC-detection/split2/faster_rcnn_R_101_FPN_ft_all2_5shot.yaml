@@ -1,0 +1,28 @@
+_BASE_: "../../Base-RCNN-FPN.yaml"
+MODEL:
+  WEIGHTS: "checkpoints/voc/faster_rcnn/faster_rcnn_R_101_FPN_base2/model_reset_surgery.pth"
+  MASK_ON: False
+  RESNETS:
+    DEPTH: 101
+  ROI_HEADS:
+    NUM_CLASSES: 20
+    OUTPUT_LAYER: "CosineSimOutputLayers"
+    FREEZE_FEAT: True
+  BACKBONE:
+    FREEZE: True
+  PROPOSAL_GENERATOR:
+    FREEZE: True
+INPUT:
+  MIN_SIZE_TRAIN: (480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800)
+  MIN_SIZE_TEST: 800
+DATASETS:
+  TRAIN: ('voc_2007_trainval_all2_5shot',)
+  TEST: ('voc_2007_test_all2',)
+SOLVER:
+  IMS_PER_BATCH: 16
+  BASE_LR: 0.005
+  STEPS: (17500,)
+  MAX_ITER: 20000
+  CHECKPOINT_PERIOD: 30000
+  WARMUP_ITERS: 0
+OUTPUT_DIR: "checkpoints/voc/faster_rcnn/faster_rcnn_R_101_FPN_ft_normalized_all2_5shot_randnovel_0.005lr"
