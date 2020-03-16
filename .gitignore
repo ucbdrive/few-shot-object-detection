@@ -1,0 +1,35 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/
+.DS_Store
+.gitignore
+
+# compilation and distribution
+__pycache__
+_ext
+*.pyc
+*.so
+detectron2.egg-info
+build/
+install/
+.ipynb_checkpoints/
+
+detectron2/model_zoo/configs
+logger-files/
+
+exp/
+checkpoints/
+
+# datasets
+datasets/coco
+datasets/VOC2007
+datasets/VOC2012
+datasets/vocsplit
+datasets/lvis
+datasets/lvissplit
+datasets/*/seed*
+
+# configs
+configs/Test
+configs/*/seed*/*
+configs/*/*/seed*/*
+
