@@ -18,7 +18,7 @@ If you find this repository useful for your publications, please consider citing
 @article{wang2020few,
   title={Frustratingly Simple Few-Shot Object Detection},
   author={Wang, Xin and Huang, Thomas E. and  Darrell, Trevor and Gonzalez, Joseph E and Yu, Fisher}
-  journal={arXiv preprint},
+  journal={arXiv preprint arXiv:2003.06957},
   year={2020}
 }
 ```
