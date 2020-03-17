@@ -2,7 +2,7 @@
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/ucbdrive/few-shot-object-detection.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ucbdrive/few-shot-object-detection/context:python)
 
 This repository contains the few-shot object detection implementation used in the paper
-[Frustratingly Simple Few-Shot Object Detection](#).
+[Frustratingly Simple Few-Shot Object Detection](https://arxiv.org/abs/2003.06957).
 ![TFA Figure](https://user-images.githubusercontent.com/7898443/76520006-698cc200-6438-11ea-864f-fd30b3d50cea.png)
 
 
