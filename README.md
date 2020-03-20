@@ -1,8 +1,8 @@
 # Few-Shot Object Detection (FsDet)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/ucbdrive/3d-vehicle-tracking.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ucbdrive/few-shot-object-detection/context:python)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/ucbdrive/few-shot-object-detection.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ucbdrive/few-shot-object-detection/context:python)
 
 FsDet contains the few-shot object detection implementation used in the paper
-[Frustratingly Simple Few-Shot Object Detection](#).
+[Frustratingly Simple Few-Shot Object Detection](https://arxiv.org/abs/2003.06957).
 ![TFA Figure](https://user-images.githubusercontent.com/7898443/76520006-698cc200-6438-11ea-864f-fd30b3d50cea.png)
 
 In addition to the benchmarks used by previous works, we introduce new benchmarks on three datasets: PASCAL VOC, COCO, and LVIS. We sample multiple groups of few-shot training examples for multiple runs of the experiments and report evaluation results on both the base classes and the novel classes. These are described in more detail in [Data Preparation](#data-preparation).
@@ -17,7 +17,7 @@ If you find this repository useful for your publications, please consider citing
 @article{wang2020few,
   title={Frustratingly Simple Few-Shot Object Detection},
   author={Wang, Xin and Huang, Thomas E. and  Darrell, Trevor and Gonzalez, Joseph E and Yu, Fisher}
-  journal={arXiv preprint},
+  journal={arXiv preprint arXiv:2003.06957},
   year={2020}
 }
 ```
