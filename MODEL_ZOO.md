@@ -13,13 +13,13 @@ We provide several models that are discussed in our paper.
 
 #### Loading Models in Code
 
-You can access the models from code using the detectron2.model_zoo API (official documentation [here](https://detectron2.readthedocs.io/modules/model_zoo.html)).
+You can access the models from code using the fsdet.model_zoo API (official documentation [here](https://detectron2.readthedocs.io/modules/model_zoo.html)).
 
 1. Pick a model and its config file from
-  [model zoo](detectron2/model_zoo/model_zoo.py),
+  [model zoo](fsdet/model_zoo/model_zoo.py),
   for example, `COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml`.
 2. ```python
-   from detectron2 import model_zoo
+   from fsdet import model_zoo
    model = model_zoo.get(
       "COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml", trained=True)
    ```

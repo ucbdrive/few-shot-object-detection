@@ -7,9 +7,9 @@ import time
 import cv2
 import tqdm
 
-from detectron2.config import get_cfg
-from detectron2.data.detection_utils import read_image
-from detectron2.utils.logger import setup_logger
+from fsdet.config import get_cfg
+from fsdet.data.detection_utils import read_image
+from fsdet.utils.logger import setup_logger
 
 from predictor import VisualizationDemo
 
@@ -30,7 +30,7 @@ def setup_cfg(args):
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description="Detectron2 demo for builtin models")
+    parser = argparse.ArgumentParser(description="FsDet demo for builtin models")
     parser.add_argument(
         "--config-file",
         default="configs/COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml",

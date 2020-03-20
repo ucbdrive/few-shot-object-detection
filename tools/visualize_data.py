@@ -6,11 +6,11 @@ from itertools import chain
 import cv2
 from PIL import Image
 
-from detectron2.config import get_cfg
-from detectron2.data import DatasetCatalog, MetadataCatalog, build_detection_train_loader
-from detectron2.data import detection_utils as utils
-from detectron2.utils.logger import setup_logger
-from detectron2.utils.visualizer import Visualizer
+from fsdet.config import get_cfg
+from fsdet.data import DatasetCatalog, MetadataCatalog, build_detection_train_loader
+from fsdet.data import detection_utils as utils
+from fsdet.utils.logger import setup_logger
+from fsdet.utils.visualizer import Visualizer
 
 
 def setup(args):

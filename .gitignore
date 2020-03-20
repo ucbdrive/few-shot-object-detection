@@ -8,12 +8,12 @@ __pycache__
 _ext
 *.pyc
 *.so
-detectron2.egg-info
+FsDet.egg-info
 build/
 install/
 .ipynb_checkpoints/
 
-detectron2/model_zoo/configs
+fsdet/model_zoo/configs
 logger-files/
 
 exp/

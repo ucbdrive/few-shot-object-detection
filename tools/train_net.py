@@ -3,31 +3,31 @@
 Detection Training Script.
 
 This scripts reads a given config file and runs the training or evaluation.
-It is an entry point that is made to train standard models in detectron2.
+It is an entry point that is made to train standard models in FsDet.
 
 In order to let one script support training of many models,
 this script contains logic that are specific to these built-in models and
 therefore may not be suitable for your own project.
 For example, your research project perhaps only needs a single "evaluator".
 
-Therefore, we recommend you to use detectron2 as an library and take
+Therefore, we recommend you to use FsDet as an library and take
 this file as an example of how to use the library.
 You may want to write your own script with your datasets and other customizations.
 """
 
 import os
 
-import detectron2.utils.comm as comm
-from detectron2.checkpoint import DetectionCheckpointer
-from detectron2.config import get_cfg, set_global_cfg
-from detectron2.data import MetadataCatalog
-from detectron2.engine import (
+import fsdet.utils.comm as comm
+from fsdet.checkpoint import DetectionCheckpointer
+from fsdet.config import get_cfg, set_global_cfg
+from fsdet.data import MetadataCatalog
+from fsdet.engine import (
     DefaultTrainer,
     default_argument_parser,
     default_setup,
     launch,
 )
-from detectron2.evaluation import (
+from fsdet.evaluation import (
     COCOEvaluator,
     DatasetEvaluators,
     LVISEvaluator,

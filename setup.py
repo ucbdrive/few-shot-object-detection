@@ -15,7 +15,7 @@ assert torch_ver >= [1, 3], "Requires PyTorch >= 1.3"
 
 def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
-    extensions_dir = os.path.join(this_dir, "detectron2", "layers", "csrc")
+    extensions_dir = os.path.join(this_dir, "fsdet", "layers", "csrc")
 
     main_source = os.path.join(extensions_dir, "vision.cpp")
     sources = glob.glob(os.path.join(extensions_dir, "**", "*.cpp"))
@@ -49,7 +49,7 @@ def get_extensions():
 
     ext_modules = [
         extension(
-            "detectron2._C",
+            "fsdet._C",
             sources,
             include_dirs=include_dirs,
             define_macros=define_macros,
@@ -63,13 +63,13 @@ def get_extensions():
 def get_model_zoo_configs() -> List[str]:
     """
     Return a list of configs to include in package for model zoo. Copy over these configs inside
-    detectron2/model_zoo.
+    fsdet/model_zoo.
     """
 
     # Use absolute paths while symlinking.
     source_configs_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "configs")
     destination = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "detectron2", "model_zoo", "configs"
+        os.path.dirname(os.path.realpath(__file__)), "fsdet", "model_zoo", "configs"
     )
     # Symlink the config directory inside package to have a cleaner pip install.
     if os.path.exists(destination):
@@ -90,14 +90,13 @@ def get_model_zoo_configs() -> List[str]:
 
 
 setup(
-    name="detectron2",
+    name="FsDet",
     version="0.1",
-    author="FAIR",
-    url="https://github.com/facebookresearch/detectron2",
-    description="Detectron2 is FAIR's next-generation research "
-    "platform for object detection and segmentation.",
+    author="BDD",
+    url="https://github.com/ucbdrive/few-shot-object-detection",
+    description="A repository for few-shot object detection.",
     packages=find_packages(exclude=("configs", "tests")),
-    package_data={"detectron2.model_zoo": get_model_zoo_configs()},
+    package_data={"fsdet.model_zoo": get_model_zoo_configs()},
     python_requires=">=3.6",
     install_requires=[
         "termcolor>=1.1",
