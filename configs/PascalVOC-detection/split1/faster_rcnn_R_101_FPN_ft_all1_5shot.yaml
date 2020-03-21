@@ -25,4 +25,4 @@ SOLVER:
   MAX_ITER: 20000
   CHECKPOINT_PERIOD: 1000
   WARMUP_ITERS: 10
-OUTPUT_DIR: "checkpoints/voc/faster_rcnn/faster_rcnn_R_101_FPN_ft_normalized_all1_5shot_randnovel_longer"
+OUTPUT_DIR: "checkpoints/voc/faster_rcnn/faster_rcnn_R_101_FPN_ft_normalized_all1_5shot_randnovel"

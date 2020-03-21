@@ -17,7 +17,7 @@ from ..poolers import ROIPooler
 from ..proposal_generator.proposal_utils import add_ground_truth_to_proposals
 from ..sampling import subsample_labels
 from .box_head import build_box_head
-from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputs
+from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputs, ROI_HEADS_OUTPUT_REGISTRY
 
 ROI_HEADS_REGISTRY = Registry("ROI_HEADS")
 ROI_HEADS_REGISTRY.__doc__ = """
@@ -282,7 +282,8 @@ class Res5ROIHeads(ROIHeads):
         )
 
         self.res5, out_channels = self._build_res5_block(cfg)
-        self.box_predictor = FastRCNNOutputLayers(
+        output_layer = cfg.MODEL.ROI_HEADS.OUTPUT_LAYER
+        self.box_predictor = ROI_HEADS_OUTPUT_REGISTRY.get(output_layer)(
             out_channels, self.num_classes, self.cls_agnostic_bbox_reg
         )
 
@@ -397,8 +398,10 @@ class StandardROIHeads(ROIHeads):
         self.box_head = build_box_head(
             cfg, ShapeSpec(channels=in_channels, height=pooler_resolution, width=pooler_resolution)
         )
-        self.box_predictor = FastRCNNOutputLayers(
-            self.box_head.output_size, self.num_classes, self.cls_agnostic_bbox_reg
+        output_layer = cfg.MODEL.ROI_HEADS.OUTPUT_LAYER
+        self.box_predictor = ROI_HEADS_OUTPUT_REGISTRY.get(output_layer)(
+            self.box_head.output_size, self.num_classes,
+            self.cls_agnostic_bbox_reg,
         )
 
     def forward(self, images, features, proposals, targets=None):
