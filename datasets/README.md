@@ -31,7 +31,7 @@ lvis/
   lvis_v0.5_train_{freq,common,rare}.json
 ```
 
-LVIS uses the same images and annotation format as COCO.
+LVIS uses the same images and annotation format as COCO. You can use [split_lvis_annotation.py](split_lvis_annotation.py) to split `lvis_v0.5_train.json` into `lvis_v0.5_train_{freq,common,rare}.json`.
 
 Install lvis-api by:
 ```
