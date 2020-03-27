@@ -6,7 +6,6 @@ from fvcore.nn import smooth_l1_loss
 from torch import nn
 from torch.nn import functional as F
 
-from fsdet.config import global_cfg
 from fsdet.layers import batched_nms, cat
 from fsdet.structures import Boxes, Instances
 from fsdet.utils.events import get_event_storage
@@ -327,9 +326,12 @@ class FastRCNNOutputLayers(nn.Module):
       (2) classification scores
     """
 
-    def __init__(self, input_size, num_classes, cls_agnostic_bbox_reg, box_dim=4):
+    def __init__(
+        self, cfg, input_size, num_classes, cls_agnostic_bbox_reg, box_dim=4
+    ):
         """
         Args:
+            cfg: config
             input_size (int): channels, or (channels, height, width)
             num_classes (int): number of foreground classes
             cls_agnostic_bbox_reg (bool): whether to use class agnostic for bbox regression
@@ -370,9 +372,12 @@ class CosineSimOutputLayers(nn.Module):
     (2) classification score is based on cosine_similarity
     """
 
-    def __init__(self, input_size, num_classes, cls_agnostic_bbox_reg, box_dim=4):
+    def __init__(
+        self, cfg, input_size, num_classes, cls_agnostic_bbox_reg, box_dim=4
+    ):
         """
         Args:
+            cfg: config
             input_size (int): channels, or (channels, height, width)
             num_classes (int): number of foreground classes
             cls_agnostic_bbox_reg (bool): whether to use class agnostic for bbox regression
@@ -388,10 +393,10 @@ class CosineSimOutputLayers(nn.Module):
         # background class
         # (hence + 1)
         self.cls_score = nn.Linear(input_size, num_classes+1, bias=False)
-        # learnable global scaling factor
-        self.scale = global_cfg.MODEL.ROI_HEADS.COSINE_SCALE
+        self.scale = cfg.MODEL.ROI_HEADS.COSINE_SCALE
         if self.scale == -1:
-            self.scale = nn.Parameter(torch.ones(1) * 20)
+            # learnable global scaling factor
+            self.scale = nn.Parameter(torch.ones(1) * 20.0)
         num_bbox_reg_classes = 1 if cls_agnostic_bbox_reg else num_classes
         self.bbox_pred = nn.Linear(input_size, num_bbox_reg_classes * box_dim)
 

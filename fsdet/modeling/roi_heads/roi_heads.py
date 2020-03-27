@@ -284,7 +284,7 @@ class Res5ROIHeads(ROIHeads):
         self.res5, out_channels = self._build_res5_block(cfg)
         output_layer = cfg.MODEL.ROI_HEADS.OUTPUT_LAYER
         self.box_predictor = ROI_HEADS_OUTPUT_REGISTRY.get(output_layer)(
-            out_channels, self.num_classes, self.cls_agnostic_bbox_reg
+            cfg, out_channels, self.num_classes, self.cls_agnostic_bbox_reg
         )
 
     def _build_res5_block(self, cfg):
@@ -400,8 +400,7 @@ class StandardROIHeads(ROIHeads):
         )
         output_layer = cfg.MODEL.ROI_HEADS.OUTPUT_LAYER
         self.box_predictor = ROI_HEADS_OUTPUT_REGISTRY.get(output_layer)(
-            self.box_head.output_size, self.num_classes,
-            self.cls_agnostic_bbox_reg,
+            cfg, self.box_head.output_size, self.num_classes, self.cls_agnostic_bbox_reg
         )
 
     def forward(self, images, features, proposals, targets=None):

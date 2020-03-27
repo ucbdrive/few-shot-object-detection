@@ -256,8 +256,8 @@ _C.MODEL.ROI_HEADS.PROPOSAL_APPEND_GT = True
 # choose from "FastRCNNOutputLayers" and "CosineSimOutputLayers"
 _C.MODEL.ROI_HEADS.OUTPUT_LAYER = "FastRCNNOutputLayers"
 
-# scale of cosine similarity
-_C.MODEL.ROI_HEADS.COSINE_SCALE = 20
+# scale of cosine similarity (set to -1 for learnable scale)
+_C.MODEL.ROI_HEADS.COSINE_SCALE = 20.0
 
 # ---------------------------------------------------------------------------- #
 # Box Head

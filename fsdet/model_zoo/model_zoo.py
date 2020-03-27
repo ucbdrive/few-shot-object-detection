@@ -178,5 +178,3 @@ def get(config_path, trained: bool = False):
     model = build_model(cfg)
     DetectionCheckpointer(model).load(cfg.MODEL.WEIGHTS)
     return model
-
-model = get('COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot_unfreeze.yaml', True)
