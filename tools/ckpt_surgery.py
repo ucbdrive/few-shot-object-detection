@@ -141,7 +141,7 @@ def surgery_loop(args, surgery):
     else:
         save_dir = args.save_dir
     save_path = os.path.join(save_dir, save_name)
-    os.makedirs(args.save_dir, exist_ok=True)
+    os.makedirs(save_dir, exist_ok=True)
     reset_ckpt(ckpt)
 
     # Remove parameters
