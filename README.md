@@ -44,7 +44,7 @@ for more instructions.
 * Dependencies: ```pip install -r requirements.txt```
 * pycocotools: ```pip install cython; pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'```
 * [fvcore](https://github.com/facebookresearch/fvcore/): ```pip install 'git+https://github.com/facebookresearch/fvcore'``` 
-* [OpenCV](https://pypi.org/project/opencv-python/), optional, needed by demo and visualization ``pip install opencv-python```
+* [OpenCV](https://pypi.org/project/opencv-python/), optional, needed by demo and visualization ```pip install opencv-python```
 * GCC >= 4.9
 
 **Build FsDet**
