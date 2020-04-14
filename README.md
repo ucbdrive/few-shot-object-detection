@@ -41,10 +41,10 @@ for more instructions.
 * Linux with Python >= 3.6
 * [PyTorch](https://pytorch.org/get-started/locally/) >= 1.3 
 * [torchvision](https://github.com/pytorch/vision/) that matches the PyTorch installation
+* Dependencies: ```pip install -r requirements.txt```
 * pycocotools: ```pip install cython; pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'```
 * [fvcore](https://github.com/facebookresearch/fvcore/): ```pip install 'git+https://github.com/facebookresearch/fvcore'``` 
 * [OpenCV](https://pypi.org/project/opencv-python/), optional, needed by demo and visualization
-* Additional packages: ```pip install -r requirements.txt```
 * GCC >= 4.9
 
 **Build FsDet**
