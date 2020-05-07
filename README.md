@@ -34,8 +34,8 @@ If you find this repository useful for your publications, please consider citing
 ## Installation
 
 FsDet is built on [Detectron2](https://github.com/facebookresearch/detectron2). 
-You may follow the official [installation](https://github.com/facebookresearch/detectron2/blob/master/INSTALL.md) 
-for more instructions. 
+Note that you don't need to build detectron2 seperately as this codebase is self-contained. You can follow the instructions
+below to install the dependencies and build `FsDet`. 
 
 **Requirements**
 * Linux with Python >= 3.6
