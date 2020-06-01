@@ -1,7 +1,7 @@
 # Few-Shot Object Detection (FsDet)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/ucbdrive/few-shot-object-detection.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ucbdrive/few-shot-object-detection/context:python)
 
-FsDet contains the few-shot object detection implementation used in the paper
+FsDet contains the official few-shot object detection implementation of the ICML 2020 paper
 [Frustratingly Simple Few-Shot Object Detection](https://arxiv.org/abs/2003.06957).
 ![TFA Figure](https://user-images.githubusercontent.com/7898443/76520006-698cc200-6438-11ea-864f-fd30b3d50cea.png)
 
@@ -15,10 +15,11 @@ If you find this repository useful for your publications, please consider citing
 
 ```angular2html
 @article{wang2020few,
-  title={Frustratingly Simple Few-Shot Object Detection},
-  author={Wang, Xin and Huang, Thomas E. and  Darrell, Trevor and Gonzalez, Joseph E and Yu, Fisher}
-  journal={arXiv preprint arXiv:2003.06957},
-  year={2020}
+    title={Frustratingly Simple Few-Shot Object Detection},
+    author={Wang, Xin and Huang, Thomas E. and  Darrell, Trevor and Gonzalez, Joseph E and Yu, Fisher}
+    booktitle = {International Conference on Machine Learning (ICML)},
+    month = {July},
+    year = {2020}
 }
 ```
 
