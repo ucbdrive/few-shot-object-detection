@@ -1,4 +1,3 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 """
 Model Zoo API for FsDet: a collection of functions to create common model architectures and
 optionally load pre-trained weights as released in

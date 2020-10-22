@@ -1,23 +1,29 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+"""Implement ROI_heads."""
 import logging
 import numpy as np
 from typing import Dict
 import torch
 from torch import nn
 
-from fsdet.layers import ShapeSpec
-from fsdet.structures import Boxes, Instances, pairwise_iou
-from fsdet.utils.events import get_event_storage
-from fsdet.utils.registry import Registry
+from detectron2.layers import ShapeSpec
+from detectron2.structures import Boxes, Instances, pairwise_iou
+from detectron2.utils.events import get_event_storage
+from detectron2.utils.registry import Registry
 
-from ..backbone.resnet import BottleneckBlock, make_stage
-from ..box_regression import Box2BoxTransform
-from ..matcher import Matcher
-from ..poolers import ROIPooler
-from ..proposal_generator.proposal_utils import add_ground_truth_to_proposals
-from ..sampling import subsample_labels
+from detectron2.modeling.backbone.resnet import BottleneckBlock, make_stage
+from detectron2.modeling.box_regression import Box2BoxTransform
+from detectron2.modeling.matcher import Matcher
+from detectron2.modeling.poolers import ROIPooler
+from detectron2.modeling.proposal_generator.proposal_utils import (
+    add_ground_truth_to_proposals,
+)
+from detectron2.modeling.sampling import subsample_labels
 from .box_head import build_box_head
-from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputs, ROI_HEADS_OUTPUT_REGISTRY
+from .fast_rcnn import (
+    FastRCNNOutputLayers,
+    FastRCNNOutputs,
+    ROI_HEADS_OUTPUT_REGISTRY,
+)
 
 ROI_HEADS_REGISTRY = Registry("ROI_HEADS")
 ROI_HEADS_REGISTRY.__doc__ = """
@@ -106,7 +112,9 @@ class ROIHeads(torch.nn.Module):
         )
 
         # Box2BoxTransform for bounding box regression
-        self.box2box_transform = Box2BoxTransform(weights=cfg.MODEL.ROI_BOX_HEAD.BBOX_REG_WEIGHTS)
+        self.box2box_transform = Box2BoxTransform(
+            weights=cfg.MODEL.ROI_BOX_HEAD.BBOX_REG_WEIGHTS
+        )
 
     def _sample_proposals(self, matched_idxs, matched_labels, gt_classes):
         """
@@ -138,7 +146,10 @@ class ROIHeads(torch.nn.Module):
             gt_classes = torch.zeros_like(matched_idxs) + self.num_classes
 
         sampled_fg_idxs, sampled_bg_idxs = subsample_labels(
-            gt_classes, self.batch_size_per_image, self.positive_sample_fraction, self.num_classes
+            gt_classes,
+            self.batch_size_per_image,
+            self.positive_sample_fraction,
+            self.num_classes,
         )
 
         sampled_idxs = torch.cat([sampled_fg_idxs, sampled_bg_idxs], dim=0)
@@ -190,7 +201,9 @@ class ROIHeads(torch.nn.Module):
             match_quality_matrix = pairwise_iou(
                 targets_per_image.gt_boxes, proposals_per_image.proposal_boxes
             )
-            matched_idxs, matched_labels = self.proposal_matcher(match_quality_matrix)
+            matched_idxs, matched_labels = self.proposal_matcher(
+                match_quality_matrix
+            )
             sampled_idxs, gt_classes = self._sample_proposals(
                 matched_idxs, matched_labels, targets_per_image.gt_classes
             )
@@ -206,16 +219,27 @@ class ROIHeads(torch.nn.Module):
                 # NOTE: here the indexing waste some compute, because heads
                 # will filter the proposals again (by foreground/background,
                 # etc), so we essentially index the data twice.
-                for (trg_name, trg_value) in targets_per_image.get_fields().items():
-                    if trg_name.startswith("gt_") and not proposals_per_image.has(trg_name):
-                        proposals_per_image.set(trg_name, trg_value[sampled_targets])
+                for (
+                    trg_name,
+                    trg_value,
+                ) in targets_per_image.get_fields().items():
+                    if trg_name.startswith(
+                        "gt_"
+                    ) and not proposals_per_image.has(trg_name):
+                        proposals_per_image.set(
+                            trg_name, trg_value[sampled_targets]
+                        )
             else:
                 gt_boxes = Boxes(
-                    targets_per_image.gt_boxes.tensor.new_zeros((len(sampled_idxs), 4))
+                    targets_per_image.gt_boxes.tensor.new_zeros(
+                        (len(sampled_idxs), 4)
+                    )
                 )
                 proposals_per_image.gt_boxes = gt_boxes
 
-            num_bg_samples.append((gt_classes == self.num_classes).sum().item())
+            num_bg_samples.append(
+                (gt_classes == self.num_classes).sum().item()
+            )
             num_fg_samples.append(gt_classes.numel() - num_bg_samples[-1])
             proposals_with_gt.append(proposals_per_image)
 
@@ -332,7 +356,9 @@ class Res5ROIHeads(ROIHeads):
             [features[f] for f in self.in_features], proposal_boxes
         )
         feature_pooled = box_features.mean(dim=[2, 3])  # pooled to 1x1
-        pred_class_logits, pred_proposal_deltas = self.box_predictor(feature_pooled)
+        pred_class_logits, pred_proposal_deltas = self.box_predictor(
+            feature_pooled
+        )
         del feature_pooled
 
         outputs = FastRCNNOutputs(
@@ -349,7 +375,9 @@ class Res5ROIHeads(ROIHeads):
             return [], losses
         else:
             pred_instances, _ = outputs.inference(
-                self.test_score_thresh, self.test_nms_thresh, self.test_detections_per_img
+                self.test_score_thresh,
+                self.test_nms_thresh,
+                self.test_detections_per_img,
             )
             return pred_instances, {}
 
@@ -396,11 +424,19 @@ class StandardROIHeads(ROIHeads):
         # They are used together so the "box predictor" layers should be part of the "box head".
         # New subclasses of ROIHeads do not need "box predictor"s.
         self.box_head = build_box_head(
-            cfg, ShapeSpec(channels=in_channels, height=pooler_resolution, width=pooler_resolution)
+            cfg,
+            ShapeSpec(
+                channels=in_channels,
+                height=pooler_resolution,
+                width=pooler_resolution,
+            ),
         )
         output_layer = cfg.MODEL.ROI_HEADS.OUTPUT_LAYER
         self.box_predictor = ROI_HEADS_OUTPUT_REGISTRY.get(output_layer)(
-            cfg, self.box_head.output_size, self.num_classes, self.cls_agnostic_bbox_reg
+            cfg,
+            self.box_head.output_size,
+            self.num_classes,
+            self.cls_agnostic_bbox_reg,
         )
 
     def forward(self, images, features, proposals, targets=None):
@@ -436,9 +472,13 @@ class StandardROIHeads(ROIHeads):
             In training, a dict of losses.
             In inference, a list of `Instances`, the predicted instances.
         """
-        box_features = self.box_pooler(features, [x.proposal_boxes for x in proposals])
+        box_features = self.box_pooler(
+            features, [x.proposal_boxes for x in proposals]
+        )
         box_features = self.box_head(box_features)
-        pred_class_logits, pred_proposal_deltas = self.box_predictor(box_features)
+        pred_class_logits, pred_proposal_deltas = self.box_predictor(
+            box_features
+        )
         del box_features
 
         outputs = FastRCNNOutputs(
@@ -452,6 +492,8 @@ class StandardROIHeads(ROIHeads):
             return outputs.losses()
         else:
             pred_instances, _ = outputs.inference(
-                self.test_score_thresh, self.test_nms_thresh, self.test_detections_per_img
+                self.test_score_thresh,
+                self.test_nms_thresh,
+                self.test_detections_per_img,
             )
             return pred_instances

@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+"""FS-Det Model Handler."""
 import logging
 from fvcore.common.file_io import PathHandler, PathManager
 
@@ -27,9 +27,7 @@ class ModelCatalog(object):
         "FAIR/X-152-32x8d-IN5k": "ImageNetPretrained/25093814/X-152-32x8d-IN5k.pkl",
     }
 
-    C2_DETECTRON_PATH_FORMAT = (
-        "{prefix}/{url}/output/train/{dataset}/{type}/model_final.pkl"
-    )  # noqa B950
+    C2_DETECTRON_PATH_FORMAT = "{prefix}/{url}/output/train/{dataset}/{type}/model_final.pkl"  # noqa B950
 
     C2_DATASET_COCO = "coco_2014_train%3Acoco_2014_valminusminival"
 
@@ -66,7 +64,10 @@ class ModelCatalog(object):
 
         # Detectron C2 models are stored in the structure defined in `C2_DETECTRON_PATH_FORMAT`.
         url = ModelCatalog.C2_DETECTRON_PATH_FORMAT.format(
-            prefix=ModelCatalog.S3_C2_DETECTRON_PREFIX, url=url, type=type, dataset=dataset
+            prefix=ModelCatalog.S3_C2_DETECTRON_PREFIX,
+            url=url,
+            type=type,
+            dataset=dataset,
         )
         return url
 

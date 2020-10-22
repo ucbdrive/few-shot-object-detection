@@ -17,17 +17,17 @@ You may want to write your own script with your datasets and other customization
 
 import os
 
-import fsdet.utils.comm as comm
-from fsdet.checkpoint import DetectionCheckpointer
-from fsdet.config import get_cfg, set_global_cfg
-from fsdet.data import MetadataCatalog
+import detectron2.utils.comm as comm
+from detectron2.checkpoint import DetectionCheckpointer
+from detectron2.config import get_cfg, set_global_cfg
+from detectron2.data import MetadataCatalog
+from detectron2.engine import launch
 from fsdet.engine import (
     DefaultTrainer,
     default_argument_parser,
     default_setup,
-    launch,
 )
-from fsdet.evaluation import (
+from detectron2.evaluation import (
     COCOEvaluator,
     DatasetEvaluators,
     LVISEvaluator,
@@ -57,7 +57,9 @@ class Trainer(DefaultTrainer):
         evaluator_list = []
         evaluator_type = MetadataCatalog.get(dataset_name).evaluator_type
         if evaluator_type == "coco":
-            evaluator_list.append(COCOEvaluator(dataset_name, cfg, True, output_folder))
+            evaluator_list.append(
+                COCOEvaluator(dataset_name, cfg, True, output_folder)
+            )
         if evaluator_type == "pascal_voc":
             return PascalVOCDetectionEvaluator(dataset_name)
         if evaluator_type == "lvis":

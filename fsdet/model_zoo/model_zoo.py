@@ -1,10 +1,9 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import os
 import pkg_resources
 import torch
 
-from fsdet.checkpoint import DetectionCheckpointer
-from fsdet.config import get_cfg
+from detectron2.checkpoint import DetectionCheckpointer
+from detectron2.config import get_cfg
 from fsdet.modeling import build_model
 
 
@@ -12,6 +11,7 @@ class _ModelZooUrls(object):
     """
     Mapping from names to our pre-trained models.
     """
+
     URL_PREFIX = "http://dl.yf.io/fs-det/models/"
 
     # format: {config_path.yaml} -> model_id/model_final.pth
@@ -131,7 +131,7 @@ def get_checkpoint_url(config_path):
     if config_path in _ModelZooUrls.CONFIG_PATH_TO_URL_SUFFIX:
         suffix = _ModelZooUrls.CONFIG_PATH_TO_URL_SUFFIX[config_path]
         return _ModelZooUrls.URL_PREFIX + suffix
-    raise RuntimeError("{} not available in Model Zoo!".format(name))
+    raise RuntimeError("{} not available in Model Zoo!".format(config_path))
 
 
 def get_config_file(config_path):
@@ -147,7 +147,9 @@ def get_config_file(config_path):
         "fsdet.model_zoo", os.path.join("configs", config_path)
     )
     if not os.path.exists(cfg_file):
-        raise RuntimeError("{} not available in Model Zoo!".format(config_path))
+        raise RuntimeError(
+            "{} not available in Model Zoo!".format(config_path)
+        )
     return cfg_file
 
 

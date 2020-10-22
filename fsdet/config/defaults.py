@@ -1,5 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-from .config import CfgNode as CN
+from detectron2.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------
 # Convention about Training / Test specific parameters
@@ -338,7 +337,9 @@ _C.MODEL.RETINANET.SMOOTH_L1_LOSS_BETA = 0.1
 _C.MODEL.RESNETS = CN()
 
 _C.MODEL.RESNETS.DEPTH = 50
-_C.MODEL.RESNETS.OUT_FEATURES = ["res4"]  # res4 for C4 backbone, res2..5 for FPN backbone
+_C.MODEL.RESNETS.OUT_FEATURES = [
+    "res4"
+]  # res4 for C4 backbone, res2..5 for FPN backbone
 
 # Number of groups to use; 1 ==> ResNet; > 1 ==> ResNeXt
 _C.MODEL.RESNETS.NUM_GROUPS = 1
@@ -376,11 +377,11 @@ _C.MODEL.RESNETS.DEFORM_NUM_GROUPS = 1
 # ---------------------------------------------------------------------------- #
 _C.MODEL.DLA = CN()
 # choose different levels from the DLA backbone features
-_C.MODEL.DLA.OUT_FEATURES = ['level2', 'level3', 'level4', 'level5']
+_C.MODEL.DLA.OUT_FEATURES = ["level2", "level3", "level4", "level5"]
 
 # choose from 'DLA-34', 'DLA-46-C', 'DLA-X-46-C', 'DLA-X-60-C', 'DLA-60',
 # 'DLA-X-60', 'DLA-102', 'DLA-X-102', 'DLA-X-102-2', 'DLA-169'
-_C.MODEL.DLA.ARCH = 'DLA-34'
+_C.MODEL.DLA.ARCH = "DLA-34"
 
 
 # ---------------------------------------------------------------------------- #
@@ -388,7 +389,7 @@ _C.MODEL.DLA.ARCH = 'DLA-34'
 # ---------------------------------------------------------------------------- #
 _C.SOLVER = CN()
 
-_C.SOLVER.NAME = 'SGD'
+_C.SOLVER.NAME = "SGD"
 _C.SOLVER.MASKED_PARAMS = []
 _C.SOLVER.MASKED_PARAMS_INDS = []
 
@@ -545,7 +546,9 @@ _C.MODEL.ROI_KEYPOINT_HEAD.NAME = "KRCNNConvDeconvUpsampleHead"
 _C.MODEL.ROI_KEYPOINT_HEAD.POOLER_RESOLUTION = 14
 _C.MODEL.ROI_KEYPOINT_HEAD.POOLER_SAMPLING_RATIO = 0
 _C.MODEL.ROI_KEYPOINT_HEAD.CONV_DIMS = tuple(512 for _ in range(8))
-_C.MODEL.ROI_KEYPOINT_HEAD.NUM_KEYPOINTS = 17  # 17 is the number of keypoints in COCO.
+_C.MODEL.ROI_KEYPOINT_HEAD.NUM_KEYPOINTS = (
+    17  # 17 is the number of keypoints in COCO.
+)
 
 # Images with too few (or no) keypoints are excluded from training.
 _C.MODEL.ROI_KEYPOINT_HEAD.MIN_KEYPOINTS_PER_IMAGE = 1

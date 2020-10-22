@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+"""Implement the CosineSimOutputLayers and  FastRCNNOutputLayers with FC layers."""
 import logging
 import numpy as np
 import torch
@@ -6,10 +6,10 @@ from fvcore.nn import smooth_l1_loss
 from torch import nn
 from torch.nn import functional as F
 
-from fsdet.layers import batched_nms, cat
-from fsdet.structures import Boxes, Instances
-from fsdet.utils.events import get_event_storage
-from fsdet.utils.registry import Registry
+from detectron2.layers import batched_nms, cat
+from detectron2.structures import Boxes, Instances
+from detectron2.utils.events import get_event_storage
+from detectron2.utils.registry import Registry
 
 
 ROI_HEADS_OUTPUT_REGISTRY = Registry("ROI_HEADS_OUTPUT")
@@ -44,7 +44,9 @@ Naming convention:
 """
 
 
-def fast_rcnn_inference(boxes, scores, image_shapes, score_thresh, nms_thresh, topk_per_image):
+def fast_rcnn_inference(
+    boxes, scores, image_shapes, score_thresh, nms_thresh, topk_per_image
+):
     """
     Call `fast_rcnn_inference_single_image` for all images.
 
@@ -72,9 +74,16 @@ def fast_rcnn_inference(boxes, scores, image_shapes, score_thresh, nms_thresh, t
     """
     result_per_image = [
         fast_rcnn_inference_single_image(
-            boxes_per_image, scores_per_image, image_shape, score_thresh, nms_thresh, topk_per_image
+            boxes_per_image,
+            scores_per_image,
+            image_shape,
+            score_thresh,
+            nms_thresh,
+            topk_per_image,
         )
-        for scores_per_image, boxes_per_image, image_shape in zip(scores, boxes, image_shapes)
+        for scores_per_image, boxes_per_image, image_shape in zip(
+            scores, boxes, image_shapes
+        )
     ]
     return tuple(list(x) for x in zip(*result_per_image))
 
@@ -130,7 +139,12 @@ class FastRCNNOutputs(object):
     """
 
     def __init__(
-        self, box2box_transform, pred_class_logits, pred_proposal_deltas, proposals, smooth_l1_beta
+        self,
+        box2box_transform,
+        pred_class_logits,
+        pred_proposal_deltas,
+        proposals,
+        smooth_l1_beta,
     ):
         """
         Args:
@@ -162,7 +176,9 @@ class FastRCNNOutputs(object):
         box_type = type(proposals[0].proposal_boxes)
         # cat(..., dim=0) concatenates over all images in the batch
         self.proposals = box_type.cat([p.proposal_boxes for p in proposals])
-        assert not self.proposals.tensor.requires_grad, "Proposals should not require gradients!"
+        assert (
+            not self.proposals.tensor.requires_grad
+        ), "Proposals should not require gradients!"
         self.image_shapes = [x.image_size for x in proposals]
 
         # The following fields should exist only when training.
@@ -184,15 +200,23 @@ class FastRCNNOutputs(object):
         fg_gt_classes = self.gt_classes[fg_inds]
         fg_pred_classes = pred_classes[fg_inds]
 
-        num_false_negative = (fg_pred_classes == bg_class_ind).nonzero().numel()
+        num_false_negative = (
+            (fg_pred_classes == bg_class_ind).nonzero().numel()
+        )
         num_accurate = (pred_classes == self.gt_classes).nonzero().numel()
         fg_num_accurate = (fg_pred_classes == fg_gt_classes).nonzero().numel()
 
         storage = get_event_storage()
-        storage.put_scalar("fast_rcnn/cls_accuracy", num_accurate / num_instances)
+        storage.put_scalar(
+            "fast_rcnn/cls_accuracy", num_accurate / num_instances
+        )
         if num_fg > 0:
-            storage.put_scalar("fast_rcnn/fg_cls_accuracy", fg_num_accurate / num_fg)
-            storage.put_scalar("fast_rcnn/false_negative", num_false_negative / num_fg)
+            storage.put_scalar(
+                "fast_rcnn/fg_cls_accuracy", fg_num_accurate / num_fg
+            )
+            storage.put_scalar(
+                "fast_rcnn/false_negative", num_false_negative / num_fg
+            )
 
     def softmax_cross_entropy_loss(self):
         """
@@ -202,7 +226,9 @@ class FastRCNNOutputs(object):
             scalar Tensor
         """
         self._log_accuracy()
-        return F.cross_entropy(self.pred_class_logits, self.gt_classes, reduction="mean")
+        return F.cross_entropy(
+            self.pred_class_logits, self.gt_classes, reduction="mean"
+        )
 
     def smooth_l1_loss(self):
         """
@@ -226,9 +252,9 @@ class FastRCNNOutputs(object):
         # Empty fg_inds produces a valid loss of zero as long as the size_average
         # arg to smooth_l1_loss is False (otherwise it uses torch.mean internally
         # and would produce a nan loss).
-        fg_inds = torch.nonzero((self.gt_classes >= 0) & (self.gt_classes < bg_class_ind)).squeeze(
-            1
-        )
+        fg_inds = torch.nonzero(
+            (self.gt_classes >= 0) & (self.gt_classes < bg_class_ind)
+        ).squeeze(1)
         if cls_agnostic_bbox_reg:
             # pred_proposal_deltas only corresponds to foreground class for agnostic
             gt_class_cols = torch.arange(box_dim, device=device)
@@ -238,7 +264,9 @@ class FastRCNNOutputs(object):
             # where b is the dimension of box representation (4 or 5)
             # Note that compared to Detectron1,
             # we do not perform bounding box regression for background classes.
-            gt_class_cols = box_dim * fg_gt_classes[:, None] + torch.arange(box_dim, device=device)
+            gt_class_cols = box_dim * fg_gt_classes[:, None] + torch.arange(
+                box_dim, device=device
+            )
 
         loss_box_reg = smooth_l1_loss(
             self.pred_proposal_deltas[fg_inds[:, None], gt_class_cols],
@@ -285,9 +313,13 @@ class FastRCNNOutputs(object):
         K = self.pred_proposal_deltas.shape[1] // B
         boxes = self.box2box_transform.apply_deltas(
             self.pred_proposal_deltas.view(num_pred * K, B),
-            self.proposals.tensor.unsqueeze(1).expand(num_pred, K, B).reshape(-1, B),
+            self.proposals.tensor.unsqueeze(1)
+            .expand(num_pred, K, B)
+            .reshape(-1, B),
         )
-        return boxes.view(num_pred, K * B).split(self.num_preds_per_image, dim=0)
+        return boxes.view(num_pred, K * B).split(
+            self.num_preds_per_image, dim=0
+        )
 
     def predict_probs(self):
         """
@@ -314,7 +346,12 @@ class FastRCNNOutputs(object):
         image_shapes = self.image_shapes
 
         return fast_rcnn_inference(
-            boxes, scores, image_shapes, score_thresh, nms_thresh, topk_per_image
+            boxes,
+            scores,
+            image_shapes,
+            score_thresh,
+            nms_thresh,
+            topk_per_image,
         )
 
 
@@ -392,7 +429,7 @@ class CosineSimOutputLayers(nn.Module):
         # The prediction layer for num_classes foreground classes and one
         # background class
         # (hence + 1)
-        self.cls_score = nn.Linear(input_size, num_classes+1, bias=False)
+        self.cls_score = nn.Linear(input_size, num_classes + 1, bias=False)
         self.scale = cfg.MODEL.ROI_HEADS.COSINE_SCALE
         if self.scale == -1:
             # learnable global scaling factor
@@ -414,10 +451,14 @@ class CosineSimOutputLayers(nn.Module):
         x_normalized = x.div(x_norm + 1e-5)
 
         # normalize weight
-        temp_norm = torch.norm(self.cls_score.weight.data,
-                               p=2, dim=1).unsqueeze(1).expand_as(
-            self.cls_score.weight.data)
-        self.cls_score.weight.data = self.cls_score.weight.data.div(temp_norm + 1e-5)
+        temp_norm = (
+            torch.norm(self.cls_score.weight.data, p=2, dim=1)
+            .unsqueeze(1)
+            .expand_as(self.cls_score.weight.data)
+        )
+        self.cls_score.weight.data = self.cls_score.weight.data.div(
+            temp_norm + 1e-5
+        )
         cos_dist = self.cls_score(x_normalized)
         scores = self.scale * cos_dist
         proposal_deltas = self.bbox_pred(x)
