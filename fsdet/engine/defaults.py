@@ -22,12 +22,14 @@ from detectron2.data import (
     build_detection_test_loader,
     build_detection_train_loader,
 )
+
 from detectron2.evaluation import (
     DatasetEvaluator,
     inference_on_dataset,
     print_csv_format,
     verify_results,
 )
+
 from fsdet.modeling import build_model
 from detectron2.solver import build_lr_scheduler, build_optimizer
 from detectron2.utils import comm
@@ -38,10 +40,10 @@ from detectron2.utils.events import (
     JSONWriter,
     TensorboardXWriter,
 )
-from detectron2.utils.logger import setup_logger
 
-from . import hooks
-from .train_loop import SimpleTrainer
+from detectron2.utils.logger import setup_logger
+from detectron2.engine import hooks, SimpleTrainer
+
 
 __all__ = [
     "default_argument_parser",
