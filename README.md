@@ -39,6 +39,8 @@ Note that you don't need to build detectron2 seperately as this codebase is self
 below to install the dependencies and build `FsDet`. 
 
 **Requirements**
+**Note**: the current codebase was tested under CUDA 10.0 and we are in the process to update the codebase to support CUDA10.2
+
 * Linux with Python >= 3.6
 * [PyTorch](https://pytorch.org/get-started/locally/) >= 1.3 
 * [torchvision](https://github.com/pytorch/vision/) that matches the PyTorch installation
