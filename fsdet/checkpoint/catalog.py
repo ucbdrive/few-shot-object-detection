@@ -1,6 +1,7 @@
 """FS-Det Model Handler."""
-import logging
 from fvcore.common.file_io import PathHandler, PathManager
+
+import logging
 
 
 class ModelCatalog(object):

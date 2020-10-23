@@ -1,5 +1,6 @@
-import logging
 from fvcore.common.config import CfgNode as _CfgNode
+
+import logging
 
 
 class CfgNode(_CfgNode):
@@ -47,7 +48,7 @@ class CfgNode(_CfgNode):
             self.merge_from_other_cfg(loaded_cfg)
         else:
             # compat.py needs to import CfgNode
-            from .compat import upgrade_config, downgrade_config
+            from .compat import downgrade_config, upgrade_config
 
             logger.warning(
                 "Loading an old v{} config file '{}' by automatically upgrading to v{}. "

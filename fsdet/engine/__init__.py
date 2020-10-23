@@ -1,6 +1,1 @@
-from .defaults import (
-    default_argument_parser,
-    default_setup,
-    DefaultPredictor,
-    DefaultTrainer,
-)
+from .defaults import DefaultPredictor, DefaultTrainer, default_argument_parser, default_setup

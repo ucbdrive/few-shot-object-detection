@@ -2,7 +2,7 @@ import argparse
 import os
 import yaml
 from ast import literal_eval as make_tuple
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import PIPE, STDOUT, Popen
 
 
 def parse_args():
