@@ -1,16 +1,15 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-import argparse
 import numpy as np
-import os
-from itertools import chain
 import cv2
 from PIL import Image
 
-from fsdet.config import get_cfg
-from fsdet.data import DatasetCatalog, MetadataCatalog, build_detection_train_loader
-from fsdet.data import detection_utils as utils
-from fsdet.utils.logger import setup_logger
-from fsdet.utils.visualizer import Visualizer
+import argparse
+import os
+from detectron2.config import get_cfg
+from detectron2.data import DatasetCatalog, MetadataCatalog, build_detection_train_loader
+from detectron2.data import detection_utils as utils
+from detectron2.utils.logger import setup_logger
+from detectron2.utils.visualizer import Visualizer
+from itertools import chain
 
 
 def setup(args):
@@ -30,9 +29,15 @@ def parse_args(in_args=None):
         required=True,
         help="visualize the annotations or the data loader (with pre-processing)",
     )
-    parser.add_argument("--config-file", default="", metavar="FILE", help="path to config file")
-    parser.add_argument("--output-dir", default="./", help="path to output directory")
-    parser.add_argument("--show", action="store_true", help="show output in a window")
+    parser.add_argument(
+        "--config-file", default="", metavar="FILE", help="path to config file"
+    )
+    parser.add_argument(
+        "--output-dir", default="./", help="path to output directory"
+    )
+    parser.add_argument(
+        "--show", action="store_true", help="show output in a window"
+    )
     parser.add_argument(
         "opts",
         help="Modify config options using the command-line",
@@ -72,18 +77,29 @@ if __name__ == "__main__":
                 if cfg.INPUT.FORMAT == "BGR":
                     img = img[:, :, [2, 1, 0]]
                 else:
-                    img = np.asarray(Image.fromarray(img, mode=cfg.INPUT.FORMAT).convert("RGB"))
+                    img = np.asarray(
+                        Image.fromarray(img, mode=cfg.INPUT.FORMAT).convert(
+                            "RGB"
+                        )
+                    )
 
                 visualizer = Visualizer(img, metadata=metadata, scale=scale)
                 target_fields = per_image["instances"].get_fields()
-                labels = [metadata.thing_classes[i] for i in target_fields["gt_classes"]]
+                labels = [
+                    metadata.thing_classes[i]
+                    for i in target_fields["gt_classes"]
+                ]
                 vis = visualizer.overlay_instances(
                     labels=labels,
                     boxes=target_fields.get("gt_boxes", None),
                 )
                 output(vis, str(per_image["image_id"]) + ".jpg")
     else:
-        dicts = list(chain.from_iterable([DatasetCatalog.get(k) for k in cfg.DATASETS.TRAIN]))
+        dicts = list(
+            chain.from_iterable(
+                [DatasetCatalog.get(k) for k in cfg.DATASETS.TRAIN]
+            )
+        )
         for dic in dicts:
             img = utils.read_image(dic["file_name"], "RGB")
             visualizer = Visualizer(img, metadata=metadata, scale=scale)

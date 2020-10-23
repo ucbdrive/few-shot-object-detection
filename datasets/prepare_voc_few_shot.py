@@ -1,11 +1,11 @@
+import numpy as np
+from fvcore.common.file_io import PathManager
+
 import argparse
 import copy
 import os
 import random
-import numpy as np
 import xml.etree.ElementTree as ET
-from fvcore.common.file_io import PathManager
-
 
 VOC_CLASSES = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
                'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',

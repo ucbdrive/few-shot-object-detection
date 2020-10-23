@@ -1,9 +1,10 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
 import argparse
 import json
 import math
 import os
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 def parse_args():

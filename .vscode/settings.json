@@ -1,0 +1,50 @@
+{
+    "editor.rulers": [
+        80
+    ],
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {},
+    // The number of spaces a tab is equal to. This setting is overridden
+    // based on the file contents when `editor.detectIndentation` is true.
+    "editor.tabSize": 4,
+    // Insert spaces when pressing Tab. This setting is overriden
+    // based on the file contents when `editor.detectIndentation` is true.
+    "editor.insertSpaces": true,
+    // When opening a file, `editor.tabSize` and `editor.insertSpaces`
+    // will be detected based on the file contents. Set to false to keep
+    // the values you've explicitly set, above.
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.rulers": [
+            79
+        ],
+        // Python use black as formatter
+        "editor.defaultFormatter": null
+    },
+    "python.pythonPath": "python3",
+    "python.formatting.provider": "black",
+    "python.linting.pylintEnabled": true,
+    "python.linting.mypyEnabled": false,
+    "python.linting.pydocstyleEnabled": false,
+    "python.linting.pydocstyleArgs": [
+        "--convention=google"
+    ],
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "typescript"
+    ],
+    "files.exclude": {
+        "**/node_modules/**": true,
+        "node_modules": true
+    },
+    "files.watcherExclude": {
+        "node_modules": true
+    },
+    "restructuredtext.confPath": "${workspaceFolder}/doc/source"
+}

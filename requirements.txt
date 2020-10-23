@@ -9,3 +9,5 @@ cloudpickle
 Pillow
 imagesize
 tensorboard
+opencv-python
+lvis
