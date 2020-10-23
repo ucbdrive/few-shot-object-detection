@@ -17,6 +17,12 @@ from torch.nn.parallel import DistributedDataParallel
 
 import detectron2.data.transforms as T
 from fsdet.checkpoint import DetectionCheckpointer
+from fsdet.evaluation import (
+    DatasetEvaluator,
+    inference_on_dataset,
+    print_csv_format,
+    verify_results,
+)
 from fsdet.modeling import build_model
 from detectron2.data import (
     MetadataCatalog,
@@ -24,12 +30,6 @@ from detectron2.data import (
     build_detection_train_loader,
 )
 from detectron2.engine import hooks, SimpleTrainer
-from detectron2.evaluation import (
-    DatasetEvaluator,
-    inference_on_dataset,
-    print_csv_format,
-    verify_results,
-)
 from detectron2.solver import build_lr_scheduler, build_optimizer
 from detectron2.utils import comm
 from detectron2.utils.collect_env import collect_env_info
@@ -148,6 +148,7 @@ def default_setup(cfg, args):
 
     rank = comm.get_rank()
     setup_logger(output_dir, distributed_rank=rank, name="fvcore")
+    setup_logger(output_dir, distributed_rank=rank, name="fsdet")
     logger = setup_logger(output_dir, distributed_rank=rank)
 
     logger.info(
@@ -454,8 +455,8 @@ class DefaultTrainer(SimpleTrainer):
         Overwrite it if you'd like a different model.
         """
         model = build_model(cfg)
-        logger = logging.getLogger(__name__)
         if not cfg.MUTE_HEADER:
+            logger = logging.getLogger(__name__)
             logger.info("Model:\n{}".format(model))
         return model
 
