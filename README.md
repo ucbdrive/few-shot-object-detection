@@ -24,7 +24,7 @@ If you find this repository useful for your publications, please consider citing
 ```
 
 ## Updates
-The code has been upgraded to detectron2 v0.2.1.  If you need the original released code, please checkout the release v0.1 in the tag.  
+The code has been upgraded to detectron2 v0.2.1.  If you need the original released code, please checkout the release [v0.1](https://github.com/ucbdrive/few-shot-object-detection/tags) in the tag.  
 
 
 
