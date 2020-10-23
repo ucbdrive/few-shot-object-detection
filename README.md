@@ -112,7 +112,7 @@ We provide a set of benchmark results and pre-trained models available for downl
   for example, `COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml`.
 2. We provide `demo.py` that is able to run builtin standard models. Run it with:
 ```
-python demo/demo.py --config-file configs/COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml \
+python3 -m demo.demo --config-file configs/COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml \
   --input input1.jpg input2.jpg \
   [--other-options]
   --opts MODEL.WEIGHTS fsdet://coco/tfa_cos_1shot/model_final.pth
@@ -150,13 +150,12 @@ For ease of training and evaluation over multiple runs, we provided several help
 
 You can use `tools/run_experiments.py` to do the training and evaluation. For example, to experiment on 30 seeds of the first split of PascalVOC on all shots, run
 ```angular2html
-python tools/run_experiments.py --num-gpus 8 \
+python3 -m tools.run_experiments --num-gpus 8 \
         --shots 1 2 3 5 10 --seeds 0 30 --split 1
 ```
 
 After training and evaluation, you can use `tools/aggregate_seeds.py` to aggregate the results over all the seeds to obtain one set of numbers. To aggregate the 3-shot results of the above command, run
 ```angular2html
-python tools/aggregate_seeds.py --shots 3 --seeds 30 --split 1 \
+python3 -m tools.aggregate_seeds --shots 3 --seeds 30 --split 1 \
         --print --plot
 ```
-

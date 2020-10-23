@@ -6,10 +6,11 @@ import glob
 import multiprocessing as mp
 import os
 import time
-from detectron2.config import get_cfg
+
+from demo.predictor import VisualizationDemo
 from detectron2.data.detection_utils import read_image
 from detectron2.utils.logger import setup_logger
-from predictor import VisualizationDemo
+from fsdet.config import get_cfg
 
 # constants
 WINDOW_NAME = "COCO detections"
