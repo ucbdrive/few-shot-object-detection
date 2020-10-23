@@ -6,31 +6,46 @@ The behavior of functions/classes in this file is subject to change,
 since they are meant to represent the "common default behavior" people need in their projects.
 """
 
+import argparse
+import logging
+import os
+from collections import OrderedDict
 import torch
 from fvcore.common.file_io import PathManager
 from fvcore.nn.precise_bn import get_bn_modules
 from torch.nn.parallel import DistributedDataParallel
 
-from fsdet.data import *
-from fsdet.modeling import build_model
-
-import argparse
 import detectron2.data.transforms as T
-import logging
-import os
-from collections import OrderedDict
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.data import (
-    MetadataCatalog, build_detection_test_loader, build_detection_train_loader)
-from detectron2.engine import SimpleTrainer, hooks
+    MetadataCatalog,
+    build_detection_test_loader,
+    build_detection_train_loader,
+)
+
 from detectron2.evaluation import (
-    DatasetEvaluator, inference_on_dataset, print_csv_format, verify_results)
+    DatasetEvaluator,
+    inference_on_dataset,
+    print_csv_format,
+    verify_results,
+)
+
+from fsdet.modeling import build_model
 from detectron2.solver import build_lr_scheduler, build_optimizer
 from detectron2.utils import comm
 from detectron2.utils.collect_env import collect_env_info
 from detectron2.utils.env import seed_all_rng
-from detectron2.utils.events import CommonMetricPrinter, JSONWriter, TensorboardXWriter
+from detectron2.utils.events import (
+    CommonMetricPrinter,
+    JSONWriter,
+    TensorboardXWriter,
+)
+
 from detectron2.utils.logger import setup_logger
+from detectron2.engine import hooks, SimpleTrainer
+
+
+from fsdet.data import *
 
 __all__ = [
     "default_argument_parser",
