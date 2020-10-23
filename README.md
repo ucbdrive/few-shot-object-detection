@@ -40,20 +40,33 @@ below to install the dependencies and build `FsDet`.
 
 **Requirements**
 * Linux with Python >= 3.6
-* [PyTorch](https://pytorch.org/get-started/locally/) >= 1.3 
+* [PyTorch](https://pytorch.org/get-started/locally/) >= 1.4
 * [torchvision](https://github.com/pytorch/vision/) that matches the PyTorch installation
-* Dependencies: ```pip install -r requirements.txt```
-* pycocotools: ```pip install cython; pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'```
-* [fvcore](https://github.com/facebookresearch/fvcore/): ```pip install 'git+https://github.com/facebookresearch/fvcore'``` 
-* [OpenCV](https://pypi.org/project/opencv-python/), optional, needed by demo and visualization ```pip install opencv-python```
+* CUDA 10.0, 10.1, 10.2
 * GCC >= 4.9
 
 **Build FsDet**
+* Create a virtual environment.
 ```angular2html
-python setup.py build develop
+python3 -m venv fsdet
+source fsdet/bin/activate
 ```
-Note: you may need to rebuild FsDet after reinstalling a different build of PyTorch.
-
+You can also use `conda` to create a new environment.
+* Install Pytorch 1.6 with CUDA 10.2 
+```angular2html
+pip install torch torchvision
+```
+You can choose the Pytorch and CUDA version according to your machine.
+Just to make sure your Pytorch version matches the [prebuilt detectron2](https://github.com/facebookresearch/detectron2/blob/master/INSTALL.md#install-pre-built-detectron2-linux-only)
+* Install Detectron2 v0.2.1
+```angular2html
+python3 -m pip install detectron2 -f \
+  https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.6/index.html
+```
+* Install other requirements. 
+```angular2html
+python3 -m pip install -r requirements.txt
+```
 
 ## Code Structure
 - **configs**: Configuration files
@@ -61,14 +74,9 @@ Note: you may need to rebuild FsDet after reinstalling a different build of PyTo
 - **fsdet**
   - **checkpoint**: Checkpoint code.
   - **config**: Configuration code and default configurations.
-  - **data**: Dataset code.
   - **engine**: Contains training and evaluation loops and hooks.
-  - **evaluation**: Evaluation code for different datasets.
   - **layers**: Implementations of different layers used in models.
   - **modeling**: Code for models, including backbones, proposal networks, and prediction heads.
-  - **solver**: Scheduler and optimizer code.
-  - **structures**: Data types, such as bounding boxes and image lists.
-  - **utils**: Utility functions.
 - **tools**
   - **train_net.py**: Training script.
   - **test_net.py**: Testing script.
@@ -87,7 +95,7 @@ See [datasets/README.md](datasets/README.md) for more details.
 
 
 ## Models
-We provide a set of benchmark results and pre-trained models available for download in [MODEL_ZOO.md](MODEL_ZOO.md).
+We provide a set of benchmark results and pre-trained models available for download in [MODEL_ZOO.md](docs/MODEL_ZOO.md).
 
 
 ## Getting Started
@@ -118,18 +126,18 @@ to understand its behavior. Some common arguments are:
 
 To train a model, run
 ```angular2html
-python tools/train_net.py --num-gpus 8 \
-        --config-file configs/PascalVOC-detection/split1/faster_rcnn_R_101_base1.yaml
+python3 -m tools.train_net --num-gpus 8 \
+        --config-file configs/PascalVOC-detection/split1/faster_rcnn_R_101_FPN_base1.yaml
 ```
 
 To evaluate the trained models, run
 ```angular2html
-python tools/test_net.py --num-gpus 8 \
+python3 -m tools.test_net --num-gpus 8 \
         --config-file configs/PascalVOC-detection/split1/faster_rcnn_R_101_FPN_ft_all1_1shot.yaml \
         --eval-only
 ```
 
-For more detailed instructions on the training procedure of TFA, see [TRAIN_INST.md](TRAIN_INST.md).
+For more detailed instructions on the training procedure of TFA, see [TRAIN_INST.md](docs/TRAIN_INST.md).
 
 ### Multiple Runs
 

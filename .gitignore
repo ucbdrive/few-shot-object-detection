@@ -33,3 +33,5 @@ configs/Test
 configs/*/seed*/*
 configs/*/*/seed*/*
 
+.vscode-upload.json
+.mypy_cache

@@ -45,6 +45,8 @@ from detectron2.utils.logger import setup_logger
 from detectron2.engine import hooks, SimpleTrainer
 
 
+from fsdet.data import *
+
 __all__ = [
     "default_argument_parser",
     "default_setup",

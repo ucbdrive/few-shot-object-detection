@@ -6,21 +6,25 @@ We hard-code metadata for common datasets. This will enable:
    without having to download the dataset annotations
 We hard-code some paths to the dataset that's assumed to
 exist in "./datasets/".
-Users SHOULD NOT use this file to create new dataset / metadata for new dataset.
-To add new dataset, refer to the tutorial "docs/DATASETS.md".
+
+Here we only register the few-shot datasets and complete COCO, PascalVOC and 
+LVIS have been handled by the builtin datasets in detectron2. 
 """
 
 import os
 
-from detectron2.data import MetadataCatalog
+from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.datasets.register_coco import register_coco_instances
-from detectron2.data.datasets.meta_coco import register_meta_coco
-from detectron2.data.datasets.lvis import register_lvis_instances
-from detectron2.data.datasets.meta_lvis import register_meta_lvis
 from detectron2.data.datasets.pascal_voc import register_pascal_voc
-from detectron2.data.datasets.meta_pascal_voc import register_meta_pascal_voc
-from detectron2.data.datasets.builtin_meta import _get_builtin_metadata
+from detectron2.data.datasets.lvis import (
+    get_lvis_instances_meta,
+    register_lvis_instances,
+)
 
+from .builtin_meta import _get_builtin_metadata
+from .meta_coco import register_meta_coco
+from .meta_lvis import register_meta_lvis
+from .meta_pascal_voc import register_meta_pascal_voc
 
 # ==== Predefined datasets and splits for COCO ==========
 
@@ -70,17 +74,17 @@ _PREDEFINED_SPLITS_COCO["coco"] = {
 
 
 def register_all_coco(root="datasets"):
-    for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_COCO.items():
-        for key, (image_root, json_file) in splits_per_dataset.items():
-            # Assume pre-defined datasets live in `./datasets`.
-            register_coco_instances(
-                key,
-                _get_builtin_metadata(dataset_name),
-                os.path.join(root, json_file)
-                if "://" not in json_file
-                else json_file,
-                os.path.join(root, image_root),
-            )
+    # for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_COCO.items():
+    #     for key, (image_root, json_file) in splits_per_dataset.items():
+    #         # Assume pre-defined datasets live in `./datasets`.
+    #         register_coco_instances(
+    #             key,
+    #             _get_builtin_metadata(dataset_name),
+    #             os.path.join(root, json_file)
+    #             if "://" not in json_file
+    #             else json_file,
+    #             os.path.join(root, image_root),
+    #         )
 
     # register meta datasets
     METASPLITS = [
@@ -120,7 +124,7 @@ def register_all_coco(root="datasets"):
 
 _PREDEFINED_SPLITS_LVIS = {
     "lvis_v0.5": {
-        "lvis_v0.5_train": ("coco/train2017", "lvis/lvis_v0.5_train.json"),
+        # "lvis_v0.5_train": ("coco/train2017", "lvis/lvis_v0.5_train.json"),
         "lvis_v0.5_train_freq": (
             "coco/train2017",
             "lvis/lvis_v0.5_train_freq.json",
@@ -133,15 +137,15 @@ _PREDEFINED_SPLITS_LVIS = {
             "coco/train2017",
             "lvis/lvis_v0.5_train_rare.json",
         ),
-        "lvis_v0.5_val": ("coco/val2017", "lvis/lvis_v0.5_val.json"),
-        "lvis_v0.5_val_rand_100": (
-            "coco/val2017",
-            "lvis/lvis_v0.5_val_rand_100.json",
-        ),
-        "lvis_v0.5_test": (
-            "coco/test2017",
-            "lvis/lvis_v0.5_image_info_test.json",
-        ),
+        # "lvis_v0.5_val": ("coco/val2017", "lvis/lvis_v0.5_val.json"),
+        # "lvis_v0.5_val_rand_100": (
+        #     "coco/val2017",
+        #     "lvis/lvis_v0.5_val_rand_100.json",
+        # ),
+        # "lvis_v0.5_test": (
+        #     "coco/test2017",
+        #     "lvis/lvis_v0.5_image_info_test.json",
+        # ),
     },
 }
 
@@ -188,19 +192,19 @@ def register_all_lvis(root="datasets"):
 
 # ==== Predefined splits for PASCAL VOC ===========
 def register_all_pascal_voc(root="datasets"):
-    SPLITS = [
-        ("voc_2007_trainval", "VOC2007", "trainval"),
-        ("voc_2007_train", "VOC2007", "train"),
-        ("voc_2007_val", "VOC2007", "val"),
-        ("voc_2007_test", "VOC2007", "test"),
-        ("voc_2012_trainval", "VOC2012", "trainval"),
-        ("voc_2012_train", "VOC2012", "train"),
-        ("voc_2012_val", "VOC2012", "val"),
-    ]
-    for name, dirname, split in SPLITS:
-        year = 2007 if "2007" in name else 2012
-        register_pascal_voc(name, os.path.join(root, dirname), split, year)
-        MetadataCatalog.get(name).evaluator_type = "pascal_voc"
+    # SPLITS = [
+    #     ("voc_2007_trainval", "VOC2007", "trainval"),
+    #     ("voc_2007_train", "VOC2007", "train"),
+    #     ("voc_2007_val", "VOC2007", "val"),
+    #     ("voc_2007_test", "VOC2007", "test"),
+    #     ("voc_2012_trainval", "VOC2012", "trainval"),
+    #     ("voc_2012_train", "VOC2012", "train"),
+    #     ("voc_2012_val", "VOC2012", "val"),
+    # ]
+    # for name, dirname, split in SPLITS:
+    #     year = 2007 if "2007" in name else 2012
+    #     register_pascal_voc(name, os.path.join(root, dirname), split, year)
+    #     MetadataCatalog.get(name).evaluator_type = "pascal_voc"
 
     # register meta datasets
     METASPLITS = [
