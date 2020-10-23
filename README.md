@@ -53,6 +53,10 @@ python3 -m venv fsdet
 source fsdet/bin/activate
 ```
 You can also use `conda` to create a new environment.
+```angular2html
+conda create --name fsdet
+conda activate fsdet
+```
 * Install Pytorch 1.6 with CUDA 10.2 
 ```angular2html
 pip install torch torchvision
