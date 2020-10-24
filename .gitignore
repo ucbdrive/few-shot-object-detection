@@ -21,6 +21,7 @@ checkpoints/
 
 # datasets
 datasets/coco
+datasets/cocosplit
 datasets/VOC2007
 datasets/VOC2012
 datasets/vocsplit

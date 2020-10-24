@@ -1,4 +1,3 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 """
 Detection Testing Script.
 
@@ -30,7 +29,7 @@ from collections import OrderedDict
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.data import MetadataCatalog
 from detectron2.engine import hooks, launch
-from detectron2.evaluation import (
+from fsdet.evaluation import (
     COCOEvaluator, DatasetEvaluators, LVISEvaluator, PascalVOCDetectionEvaluator, verify_results)
 
 
@@ -120,7 +119,8 @@ def setup(args):
     """
     cfg = get_cfg()
     cfg.merge_from_file(args.config_file)
-    cfg.merge_from_list(args.opts)
+    if args.opts:
+        cfg.merge_from_list(args.opts)
     cfg.freeze()
     set_global_cfg(cfg)
     default_setup(cfg, args)

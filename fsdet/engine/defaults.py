@@ -16,21 +16,20 @@ from fvcore.nn.precise_bn import get_bn_modules
 from torch.nn.parallel import DistributedDataParallel
 
 import detectron2.data.transforms as T
-from detectron2.checkpoint import DetectionCheckpointer
-from detectron2.data import (
-    MetadataCatalog,
-    build_detection_test_loader,
-    build_detection_train_loader,
-)
-
-from detectron2.evaluation import (
+from fsdet.checkpoint import DetectionCheckpointer
+from fsdet.evaluation import (
     DatasetEvaluator,
     inference_on_dataset,
     print_csv_format,
     verify_results,
 )
-
 from fsdet.modeling import build_model
+from detectron2.data import (
+    MetadataCatalog,
+    build_detection_test_loader,
+    build_detection_train_loader,
+)
+from detectron2.engine import hooks, SimpleTrainer
 from detectron2.solver import build_lr_scheduler, build_optimizer
 from detectron2.utils import comm
 from detectron2.utils.collect_env import collect_env_info
@@ -42,7 +41,6 @@ from detectron2.utils.events import (
 )
 
 from detectron2.utils.logger import setup_logger
-from detectron2.engine import hooks, SimpleTrainer
 
 
 from fsdet.data import *
@@ -124,7 +122,7 @@ def default_argument_parser():
         "--dist-url", default="tcp://127.0.0.1:{}".format(port)
     )
     parser.add_argument(
-        "opts",
+        "--opts",
         help="Modify config options using the command-line",
         default=None,
         nargs=argparse.REMAINDER,
@@ -150,6 +148,7 @@ def default_setup(cfg, args):
 
     rank = comm.get_rank()
     setup_logger(output_dir, distributed_rank=rank, name="fvcore")
+    setup_logger(output_dir, distributed_rank=rank, name="fsdet")
     logger = setup_logger(output_dir, distributed_rank=rank)
 
     logger.info(
@@ -456,8 +455,8 @@ class DefaultTrainer(SimpleTrainer):
         Overwrite it if you'd like a different model.
         """
         model = build_model(cfg)
-        logger = logging.getLogger(__name__)
         if not cfg.MUTE_HEADER:
+            logger = logging.getLogger(__name__)
             logger.info("Model:\n{}".format(model))
         return model
 
