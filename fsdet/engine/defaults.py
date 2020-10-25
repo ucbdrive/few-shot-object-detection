@@ -17,6 +17,7 @@ from torch.nn.parallel import DistributedDataParallel
 
 import detectron2.data.transforms as T
 from fsdet.checkpoint import DetectionCheckpointer
+from fsdet.engine.hooks import EvalHookFsdet
 from fsdet.evaluation import (
     DatasetEvaluator,
     inference_on_dataset,
@@ -396,7 +397,8 @@ class DefaultTrainer(SimpleTrainer):
 
         # Do evaluation after checkpointer, because then if it fails,
         # we can use the saved checkpoint to debug.
-        ret.append(hooks.EvalHook(cfg.TEST.EVAL_PERIOD, test_and_save_results))
+        ret.append(EvalHookFsdet(
+            cfg.TEST.EVAL_PERIOD, test_and_save_results, self.cfg))
 
         if comm.is_main_process():
             # run writers in the end, so that evaluation metrics are written
