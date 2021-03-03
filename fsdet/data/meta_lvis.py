@@ -1,4 +1,4 @@
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 from fvcore.common.timer import Timer
 
 import logging

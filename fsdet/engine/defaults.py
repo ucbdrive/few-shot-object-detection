@@ -11,7 +11,6 @@ import logging
 import os
 from collections import OrderedDict
 import torch
-from fvcore.common.file_io import PathManager
 from fvcore.nn.precise_bn import get_bn_modules
 from torch.nn.parallel import DistributedDataParallel
 
@@ -25,6 +24,7 @@ from fsdet.evaluation import (
     verify_results,
 )
 from fsdet.modeling import build_model
+from fsdet.utils.file_io import PathManager
 from detectron2.data import (
     MetadataCatalog,
     build_detection_test_loader,
@@ -40,7 +40,6 @@ from detectron2.utils.events import (
     JSONWriter,
     TensorboardXWriter,
 )
-
 from detectron2.utils.logger import setup_logger
 
 

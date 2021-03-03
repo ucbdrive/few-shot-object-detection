@@ -5,7 +5,6 @@ import logging
 import os
 from collections import OrderedDict
 import torch
-from fvcore.common.file_io import PathManager
 
 import detectron2.utils.comm as comm
 from detectron2.data import MetadataCatalog
@@ -13,6 +12,7 @@ from detectron2.utils.logger import create_small_table
 
 from fsdet.evaluation.coco_evaluation import instances_to_coco_json
 from fsdet.evaluation.evaluator import DatasetEvaluator
+from fsdet.utils.file_io import PathManager
 
 
 class LVISEvaluator(DatasetEvaluator):

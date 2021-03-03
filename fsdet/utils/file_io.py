@@ -1,7 +1,15 @@
-"""FS-Det Model Handler."""
-from fvcore.common.file_io import PathHandler, PathManager
+from iopath.common.file_io import HTTPURLHandler, OneDrivePathHandler, PathHandler
+from iopath.common.file_io import PathManager as PathManagerBase
 
-import logging
+__all__ = ["PathManager", "PathHandler"]
+
+
+PathManager = PathManagerBase()
+"""
+This is a detectron2 project-specific PathManager.
+We try to stay away from global PathManager in fvcore as it
+introduces potential conflicts among other libraries.
+"""
 
 
 class FsDetHandler(PathHandler):
@@ -23,4 +31,6 @@ class FsDetHandler(PathHandler):
         return PathManager.open(self._get_local_path(path), mode, **kwargs)
 
 
+PathManager.register_handler(HTTPURLHandler())
+PathManager.register_handler(OneDrivePathHandler())
 PathManager.register_handler(FsDetHandler())

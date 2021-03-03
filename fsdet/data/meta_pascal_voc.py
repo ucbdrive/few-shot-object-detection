@@ -1,5 +1,5 @@
 import numpy as np
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 
 import os
 import xml.etree.ElementTree as ET
