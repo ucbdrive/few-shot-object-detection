@@ -5,7 +5,7 @@ from fsdet.modeling import build_model
 import os
 import pkg_resources
 from detectron2.checkpoint import DetectionCheckpointer
-from detectron2.config import get_cfg
+from fsdet.config import get_cfg
 
 
 class _ModelZooUrls(object):
