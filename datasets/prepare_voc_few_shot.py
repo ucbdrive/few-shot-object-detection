@@ -15,7 +15,7 @@ VOC_CLASSES = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seeds", type=int, nargs="+", default=[1, 20],
+    parser.add_argument("--seeds", type=int, nargs="+", default=[1, 30],
                         help="Range of seeds")
     args = parser.parse_args()
     return args
