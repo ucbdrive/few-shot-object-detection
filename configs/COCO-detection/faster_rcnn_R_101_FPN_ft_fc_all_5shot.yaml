@@ -5,20 +5,20 @@ MODEL:
   RESNETS:
     DEPTH: 101
   ROI_HEADS:
-    NUM_CLASSES: 80
+    NUM_CLASSES: 14
     FREEZE_FEAT: True
   BACKBONE:
     FREEZE: True
   PROPOSAL_GENERATOR:
     FREEZE: True
 DATASETS:
-  TRAIN: ('coco_trainval_all_5shot',)
-  TEST: ('coco_test_all',)
+  TRAIN: ('custom_train_all_5shot',)
+  TEST: ('custom_test_all_aop',)
 SOLVER:
-  IMS_PER_BATCH: 16
+  IMS_PER_BATCH: 2
   BASE_LR: 0.001
-  STEPS: (72000,)
-  MAX_ITER: 80000
+  STEPS: (40000,)
+  MAX_ITER: 50000
   CHECKPOINT_PERIOD: 4000
   WARMUP_ITERS: 10
 OUTPUT_DIR: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_ft_fc_all_5shot"

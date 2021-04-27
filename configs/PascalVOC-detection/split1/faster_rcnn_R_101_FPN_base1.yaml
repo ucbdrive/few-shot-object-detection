@@ -13,7 +13,10 @@ DATASETS:
   TRAIN: ('voc_2007_trainval_base1', 'voc_2012_trainval_base1')
   TEST: ('voc_2007_test_base1',)
 SOLVER:
-  STEPS: (12000, 16000)
-  MAX_ITER: 18000  # 17.4 epochs
-  WARMUP_ITERS: 100
+  BASE_LR: 0.0025
+  GAMMA: 0.1
+  STEPS: (96000, 128000) #times 8 etc.
+  MAX_ITER: 144000  # 17.4 epochs
+  IMS_PER_BATCH: 2
+  WARMUP_ITERS: 800
 OUTPUT_DIR: "checkpoints/voc/faster_rcnn/faster_rcnn_R_101_FPN_base1"

@@ -12,6 +12,7 @@ our paper and get it published (fingers crossed), we will see if creating a pull
 and keep everything in one place. 
 
 # Few-Shot Object Detection (FsDet)
+
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/ucbdrive/few-shot-object-detection.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ucbdrive/few-shot-object-detection/context:python)
 
 FsDet contains the official few-shot object detection implementation of the ICML 2020 paper
@@ -43,6 +44,7 @@ If you find this repository useful for your publications, please consider citing
 ```
 
 ## Updates
+
 The code has been upgraded to detectron2 v0.2.1.  If you need the original released code, please checkout the release
 [v0.1](https://github.com/ucbdrive/few-shot-object-detection/tags) in the tag.  
 
@@ -57,7 +59,7 @@ The code has been upgraded to detectron2 v0.2.1.  If you need the original relea
 
 **Requirements**
 
-* Linux with Python >= 3.9
+* Linux with Python >= 3.6
 * [PyTorch](https://pytorch.org/get-started/locally/) >= 1.4
 * [torchvision](https://github.com/pytorch/vision/) that matches the PyTorch installation
 * CUDA 10.0, 10.1, 10.2
@@ -99,6 +101,7 @@ See [datasets/README.md](datasets/README.md) for more details.
 
 
 ## Models
+
 We provide a set of benchmark results and pre-trained models available for download in [MODEL_ZOO.md](docs/MODEL_ZOO.md).
 
 ## Getting Started
@@ -109,7 +112,6 @@ We provide a set of benchmark results and pre-trained models available for downl
   [model zoo](fsdet/model_zoo/model_zoo.py),
   for example, `COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml`.
 2. We provide `demo.py` that is able to run builtin standard models. Run it with:
-
 ```shell script
 python3 -m demo.demo --config-file configs/COCO-detection/faster_rcnn_R_101_FPN_ft_all_1shot.yaml \
   --input input1.jpg input2.jpg \
@@ -147,13 +149,15 @@ For more detailed instructions on the training procedure of TFA, see [TRAIN_INST
 
 For ease of training and evaluation over multiple runs, we provided several helpful scripts in `tools/`.
 
-You can use `tools/run_experiments.py` to do the training and evaluation. For example, to experiment on 30 seeds of the first split of PascalVOC on all shots, run
+You can use `tools/run_experiments.py` to do the training and evaluation. For example, to experiment on 30 seeds of the
+first split of PascalVOC on all shots, run
 ```shell script
 python3 -m tools.run_experiments --num-gpus 8 \
         --shots 1 2 3 5 10 --seeds 0 30 --split 1
 ```
 
-After training and evaluation, you can use `tools/aggregate_seeds.py` to aggregate the results over all the seeds to obtain one set of numbers. To aggregate the 3-shot results of the above command, run
+After training and evaluation, you can use `tools/aggregate_seeds.py` to aggregate the results over all the seeds to
+obtain one set of numbers. To aggregate the 3-shot results of the above command, run
 ```shell script
 python3 -m tools.aggregate_seeds --shots 3 --seeds 30 --split 1 \
         --print --plot

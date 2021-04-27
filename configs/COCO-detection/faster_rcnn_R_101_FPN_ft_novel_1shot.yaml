@@ -5,19 +5,19 @@ MODEL:
   RESNETS:
     DEPTH: 101
   ROI_HEADS:
-    NUM_CLASSES: 20
+    NUM_CLASSES: 2 #novel classes
     FREEZE_FEAT: True
   BACKBONE:
     FREEZE: True
   PROPOSAL_GENERATOR:
     FREEZE: True
 DATASETS:
-  TRAIN: ('coco_trainval_novel_1shot',)
-  TEST: ('coco_test_novel',)
+  TRAIN: ('custom_train_novel_1shot',) #custom datasets
+  TEST: ('custom_test_novel_aop',)
 SOLVER:
-  IMS_PER_BATCH: 16
-  BASE_LR: 0.01
-  STEPS: (10000,)
+  IMS_PER_BATCH: 2
+  BASE_LR: 0.01 # 0.00125 test small lr
+  STEPS: (10000, )
   MAX_ITER: 500
   CHECKPOINT_PERIOD: 500
   WARMUP_ITERS: 0

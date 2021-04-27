@@ -7,11 +7,10 @@ MODEL:
   ROI_HEADS:
     NUM_CLASSES: 12 #base classes
 DATASETS:
-  TRAIN: ('custom_train_base_aop',) #custom datasets
-  TEST: ('custom_test_base_aop',)
+  TEST: ('custom_test_all_aop',)
 SOLVER:
   BASE_LR: 0.02
   IMS_PER_BATCH: 2
-  STEPS: (2000, 4000) #(1500, 3000)
-  MAX_ITER: 5000 #4000
-OUTPUT_DIR: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_base"
+  STEPS: (1500, 3000)
+  MAX_ITER: 4000
+OUTPUT_DIR: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_baseline"

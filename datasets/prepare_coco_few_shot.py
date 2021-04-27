@@ -2,18 +2,35 @@ import argparse
 import json
 import os
 import random
+<<<<<<< HEAD
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seeds", type=int, nargs="+", default=[1, 10],
+=======
+import sys
+
+PROJ_ROOT = '/home/irene/few-shot-object-detection/'
+DATASET_ROOT = os.path.join(PROJ_ROOT, 'datasets')
+ANN_ROOT = os.path.join(DATASET_ROOT, 'annotations')
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seeds", type=int, nargs="+", default=[1, 6],
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
                         help="Range of seeds")
     args = parser.parse_args()
     return args
 
+<<<<<<< HEAD
 
 def generate_seeds(args):
     data_path = 'datasets/cocosplit/datasplit/trainvalno5k.json'
+=======
+def generate_seeds(args):
+    data_path = os.path.join(ANN_ROOT, 'train.json')
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
     data = json.load(open(data_path))
 
     new_all_cats = []
@@ -26,23 +43,40 @@ def generate_seeds(args):
 
     anno = {i: [] for i in ID2CLASS.keys()}
     for a in data['annotations']:
+<<<<<<< HEAD
         if a['iscrowd'] == 1:
             continue
+=======
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
         anno[a['category_id']].append(a)
 
     for i in range(args.seeds[0], args.seeds[1]):
         random.seed(i)
+<<<<<<< HEAD
         for c in ID2CLASS.keys():
             img_ids = {}
+=======
+        #category_ids that are not empty! if you include one or more without annotations use line 39 and 40:
+        for c in [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
+            img_ids = {}
+            if not anno[c]:
+                continue
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
             for a in anno[c]:
                 if a['image_id'] in img_ids:
                     img_ids[a['image_id']].append(a)
                 else:
                     img_ids[a['image_id']] = [a]
+<<<<<<< HEAD
 
             sample_shots = []
             sample_imgs = []
             for shots in [1, 2, 3, 5, 10, 30]:
+=======
+            sample_shots = []
+            sample_imgs = []
+            for shots in [1, 2, 3, 5, 10]:
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
                 while True:
                     imgs = random.sample(list(img_ids.keys()), shots)
                     for img in imgs:
@@ -62,8 +96,13 @@ def generate_seeds(args):
                     if len(sample_shots) == shots:
                         break
                 new_data = {
+<<<<<<< HEAD
                     'info': data['info'],
                     'licenses': data['licenses'],
+=======
+                    #'info': data['info'],
+                    #'licenses': data['licenses'],
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
                     'images': sample_imgs,
                     'annotations': sample_shots,
                 }
@@ -72,15 +111,23 @@ def generate_seeds(args):
                 with open(save_path, 'w') as f:
                     json.dump(new_data, f)
 
+<<<<<<< HEAD
 
 def get_save_path_seeds(path, cls, shots, seed):
     s = path.split('/')
     prefix = 'full_box_{}shot_{}_trainval'.format(shots, cls)
     save_dir = os.path.join('datasets', 'cocosplit', 'seed' + str(seed))
+=======
+def get_save_path_seeds(path, cls, shots, seed):
+    s = path.split('/')
+    prefix = 'full_box_{}shot_{}_train'.format(shots, cls)
+    save_dir = os.path.join(DATASET_ROOT, 'seed' + str(seed))
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, prefix + '.json')
     return save_path
 
+<<<<<<< HEAD
 
 if __name__ == '__main__':
     ID2CLASS = {
@@ -164,8 +211,31 @@ if __name__ == '__main__':
         88: "teddy bear",
         89: "hair drier",
         90: "toothbrush",
+=======
+if __name__ == '__main__':
+    ID2CLASS = {
+        1: 'AOP_EVK80',
+        2: 'AOP_TRAS1000',
+        3: 'AOP_TRAS1000_no_key',
+        #4: 'AOP_X10DER_KT_01',
+        5: 'SPLITTER_MCP_03',
+        6: 'SPLITTER_POA_01_met_kapje',
+        7: 'SPLITTER_POA_01_zonder_kapje',
+        8: 'SPLITTER_POA_01IEC',
+        9: 'SPLITTER_POA_3_met_kapje',
+        10: 'SPLITTER_POA_3_zonder_kapje',
+        11: 'SPLITTER_SQ601_met_kapje',
+        12: 'SPLITTER_UMU_met_kapje',
+        13: 'WCD_tweegats',
+        14: 'AOP_BTV1',
+        15: 'AOP_DIO_01',
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
     }
     CLASS2ID = {v: k for k, v in ID2CLASS.items()}
 
     args = parse_args()
     generate_seeds(args)
+<<<<<<< HEAD
+=======
+    sys.exit(0)
+>>>>>>> Remove binaries, environment and the datasets as those are not supposed to be on GitHub.
