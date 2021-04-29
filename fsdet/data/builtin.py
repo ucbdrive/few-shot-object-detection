@@ -20,7 +20,8 @@ from .meta_coco import register_meta_coco
 
 
 PROJ_ROOT = str(Path(__file__).parent) + '/../..'
-DATASET_ROOT = str(Path(__file__).parent) + '/../../datasets'
+# TODO: This has to be injected either as an environment variable or a parameter.
+DATASET_ROOT = str(Path(__file__).parent) + '/../../datasets/socket_plates'
 os.chdir(PROJ_ROOT)
 
 # ==== Predefined datasets and splits for COCO ==========
