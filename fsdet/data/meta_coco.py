@@ -1,15 +1,17 @@
+import io
+import os
+
+from pathlib import Path
+
 import numpy as np
+
 from fvcore.common.file_io import PathManager
 from pycocotools.coco import COCO
 
 import contextlib
-import io
-import os
+
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import BoxMode
-import cv2
-
-from pathlib import Path
 
 """
 This file contains functions to parse COCO-format annotations into dicts in "Detectron2 format".
@@ -20,6 +22,7 @@ __all__ = ["register_meta_coco"]
 PROJ_ROOT = str(Path(__file__).parent) + '/..'
 DATASET_ROOT = str(Path(__file__).parent) + '/../datasets'
 os.chdir(PROJ_ROOT)
+
 
 def load_coco_json(json_file, image_root, metadata, dataset_name):
     """

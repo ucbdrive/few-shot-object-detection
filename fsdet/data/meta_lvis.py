@@ -1,8 +1,9 @@
+import logging
+import os
+
 from fvcore.common.file_io import PathManager
 from fvcore.common.timer import Timer
 
-import logging
-import os
 from detectron2.config import global_cfg
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import BoxMode

@@ -11,10 +11,7 @@ Here we only register the few-shot datasets and complete COCO, PascalVOC and
 LVIS have been handled by the builtin datasets in detectron2. 
 """
 
-from glob import glob
 import os
-from detectron2.data import DatasetCatalog, MetadataCatalog
-from detectron2.data.datasets.register_coco import register_coco_instances
 
 from pathlib import Path
 
