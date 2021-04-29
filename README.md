@@ -74,6 +74,14 @@ conda env create -f environment.yml
 conda activate wfsdet
 ```
 
+After the environment is created, we have to install the Detectron2 package. Unfortunately, due to the way the Detectron2
+package is setup, `PyTorch` must be already installed. Hence, just adding Detectron2 to the Conda environment file
+won't do it for us. Please, to proceed, execute the command below:
+
+```shell script
+conda instal -c conda-forge detectron2
+``` 
+
 ## Code Structure
 - **configs**: Configuration files
 - **datasets**: Dataset files (see [Data Preparation](#data-preparation) for more details)
