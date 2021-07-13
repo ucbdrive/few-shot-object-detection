@@ -13,28 +13,29 @@ LVIS have been handled by the builtin datasets in detectron2.
 
 import os
 
-from pathlib import Path
+from typing import List
 
 from .builtin_meta import _get_builtin_metadata
 from .meta_coco import register_meta_coco
+from fsdet.utils import io
 
-
-PROJ_ROOT = str(Path(__file__).parent) + '/../..'
+PROJ_ROOT = str(io.get_project_root())
 # TODO: This has to be injected either as an environment variable or a parameter.
-DATASET_ROOT = str(Path(__file__).parent) + '/../../datasets/socket_plates'
+DATASET_ROOT = os.path.join(PROJ_ROOT, 'datasets/socket_plates')
 os.chdir(PROJ_ROOT)
 
 # ==== Predefined datasets and splits for COCO ==========
 _PREDEFINED_SPLITS_COCO = {}
+
 _PREDEFINED_SPLITS_COCO["custom"] = {
     "custom_2014_train_aop": (
-        "/home/irene/few-shot-object-detection/datasets/train",
-        "/home/irene/few-shot-object-detection/datasets/annotations/train.json",
+        os.path.join(DATASET_ROOT, "train"),
+        os.path.join(DATASET_ROOT, "annotations/train.json")
     ),
     "custom_2014_val_aop": (
-        "/home/irene/few-shot-object-detection/datasets/val",
-        "/home/irene/few-shot-object-detection/datasets/annotations/val.json",
-    ),
+        os.path.join(DATASET_ROOT, "val"),
+        os.path.join(DATASET_ROOT, "annotations/val.json")
+    )
 }
 
 
@@ -43,17 +44,29 @@ def register_all_coco(root=DATASET_ROOT):
     METASPLITS = [
         (
             "custom_train_all_aop",
-            DATASET_ROOT + "/train",
-            DATASET_ROOT + "/annotations/train.json",
+            os.path.join(DATASET_ROOT, "train"),
+            os.path.join(DATASET_ROOT, "annotations/train.json")
         ),
         (
             "custom_train_base_aop",
-            DATASET_ROOT + "/train",
-            DATASET_ROOT + "/annotations/train.json",
+            os.path.join(DATASET_ROOT, "val"),
+            os.path.join(DATASET_ROOT, "annotations/val.json")
         ),
-        ("custom_test_all_aop", DATASET_ROOT + "/val", DATASET_ROOT + "/annotations/val.json"),
-        ("custom_test_base_aop", DATASET_ROOT + "/val", DATASET_ROOT + "/annotations/val.json"),
-        ("custom_test_novel_aop", DATASET_ROOT + "/val", DATASET_ROOT + "/annotations/val.json"),
+        (
+            "custom_test_all_aop",
+            os.path.join(DATASET_ROOT, "val"),
+            os.path.join(DATASET_ROOT, "annotations/val.json")
+        ),
+        (
+            "custom_test_base_aop",
+            os.path.join(DATASET_ROOT, "val"),
+            os.path.join(DATASET_ROOT, "annotations/val.json")
+        ),
+        (
+            "custom_test_novel_aop",
+            os.path.join(DATASET_ROOT, "val"),
+            os.path.join(DATASET_ROOT, "annotations/val.json")
+        )
     ]
 
     # register small meta datasets for fine-tuning stage

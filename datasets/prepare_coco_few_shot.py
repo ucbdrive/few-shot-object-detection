@@ -4,12 +4,13 @@ import os
 import random
 import sys
 
-from pathlib import Path
+from fsdet.utils import io
 
-PROJ_ROOT = str(Path(__file__).parent)
+PROJ_ROOT = str(io.get_project_root())
 # TODO: This has to be injected either as an environment variable or a parameter.
-DATASET_ROOT = str(Path(__file__).parent) + '/datasets/socket_plates'
+DATASET_ROOT = os.path.join(PROJ_ROOT, 'datasets/socket_plates')
 ANN_ROOT = os.path.join(DATASET_ROOT, 'annotations')
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -17,6 +18,7 @@ def parse_args():
                         help="Range of seeds")
     args = parser.parse_args()
     return args
+
 
 def generate_seeds(args):
     data_path = os.path.join(ANN_ROOT, 'train.json')

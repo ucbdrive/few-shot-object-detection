@@ -1,8 +1,6 @@
 import io
 import os
 
-from pathlib import Path
-
 import numpy as np
 
 from fvcore.common.file_io import PathManager
@@ -13,15 +11,18 @@ import contextlib
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import BoxMode
 
+from fsdet.utils import io
+
 """
 This file contains functions to parse COCO-format annotations into dicts in "Detectron2 format".
 """
 
 __all__ = ["register_meta_coco"]
 
-PROJ_ROOT = str(Path(__file__).parent) + '/..'
+PROJ_ROOT = str(io.get_project_root())
+
 # TODO: This has to be injected either as an environment variable or a parameter.
-DATASET_ROOT = str(Path(__file__).parent) + '/../datasets/socket_plates'
+DATASET_ROOT = os.path.join(PROJ_ROOT, 'datasets/socket_plates')
 os.chdir(PROJ_ROOT)
 
 

@@ -1,8 +1,9 @@
 name: wfsdet
 channels:
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.7
+  - python=3.9
   - pip
   - pip:
     - termcolor
@@ -20,3 +21,6 @@ dependencies:
     - torch
     - torchvision
     - lvis
+    - omegaconf>=2
+    - fvcore==0.1.4
+    - iopath

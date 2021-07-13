@@ -185,5 +185,5 @@ cython_debug/
 *.pt
 *.tfrecords
 
-**/socket_plates/**
+datasets/socket_plates/**
 

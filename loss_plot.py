@@ -1,9 +1,17 @@
+import os
+
 import json
 import matplotlib.pyplot as plt
 
-#After every experiment you have to delete the content of the 'experiment_folder', otherwise it also displays the other experiments in the plot
+from fsdet.utils import io
 
-experiment_folder = '/home/irene/few-shot-object-detection/checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_base'
+
+# After every experiment you have to delete the content of the 'experiment_folder'
+# otherwise it also displays the other experiments in the plot
+
+PROJ_ROOT = str(io.get_project_root())
+experiment_folder = os.path.join(PROJ_ROOT, 'checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_base')
+
 
 def load_json_arr(json_path):
     lines = []
@@ -11,6 +19,7 @@ def load_json_arr(json_path):
         for line in f:
             lines.append(json.loads(line))
     return lines
+
 
 experiment_metrics = load_json_arr(experiment_folder + '/metrics.json')
 
