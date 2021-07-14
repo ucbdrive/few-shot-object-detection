@@ -2,7 +2,13 @@ import torch
 
 import argparse
 import os
+import sys
 
+
+lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'../fsdet/data'))
+sys.path.append(lib_path)
+
+import custom_dataset
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -33,6 +39,8 @@ def parse_args():
                         help='For COCO models')
     parser.add_argument('--lvis', action='store_true',
                         help='For LVIS models')
+    parser.add_argument('--custom', type=str,
+                        help='For custom dataset, provide the configuration file')
     args = parser.parse_args()
     return args
 
@@ -86,6 +94,7 @@ def combine_ckpts(args):
             return
         weight_name = param_name + ('.weight' if is_weight else '.bias')
         pretrained_weight = ckpt['model'][weight_name]
+        
         prev_cls = pretrained_weight.size(0)
         if 'cls_score' in param_name:
             prev_cls -= 1
@@ -123,6 +132,7 @@ def combine_ckpts(args):
                 new_weight[prev_cls:] = ckpt2_weight
         ckpt['model'][weight_name] = new_weight
 
+
     surgery_loop(args, surgery)
 
 
@@ -158,6 +168,8 @@ def surgery_loop(args, surgery):
     tar_sizes = [TAR_SIZE + 1, TAR_SIZE * 4]
     for idx, (param_name, tar_size) in enumerate(zip(args.param_name,
                                                      tar_sizes)):
+
+                                                           
         surgery(param_name, True, tar_size, ckpt, ckpt2)
         surgery(param_name, False, tar_size, ckpt, ckpt2)
 
@@ -179,7 +191,18 @@ def reset_ckpt(ckpt):
         ckpt['iteration'] = 0
 
 
-if __name__ == '__main__':
+
+def main(arglist):
+
+    global TAR_SIZE
+    global NOVEL_CLASSES
+    global BASE_CLASSES
+    global ALL_CLASSES
+    global IDMAP
+
+    sys.argv = arglist
+    sys.argc = len(arglist)
+
     args = parse_args()
 
     # COCO
@@ -245,8 +268,35 @@ if __name__ == '__main__':
     else:
         # VOC
         TAR_SIZE = 20
+        
+    # custom dataset
+    if not(args.custom is None):
+        cds = custom_dataset.CustomDataset()
+        cds.parse(args.custom)
+        
+        NOVEL_CLASSES = cds.get_novel_class_ids()
+        BASE_CLASSES = cds.get_base_class_ids()
+        
+        ALL_CLASSES = sorted(BASE_CLASSES + NOVEL_CLASSES)
+        IDMAP = {v:i for i, v in enumerate(ALL_CLASSES)}       
+        
+        TAR_SIZE = cds.get_nclasses_all()
+        
+        args.coco = True
+
 
     if args.method == 'combine':
         combine_ckpts(args)
     else:
         ckpt_surgery(args)
+        
+        
+if __name__ == '__main__':
+    TAR_SIZE = 0
+    BASE_CLASSES = []
+    NOVEL_CLASSES = []
+    ALL_CLASSES = []
+    IDMAP = []
+    
+    main(sys.argv)
+    

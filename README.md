@@ -9,8 +9,8 @@ We have extended the FsDet framework with a tool that dynamically generates data
 The tool has the following features:
 
 - Determine the base and novel classes from the provided annotations (for the novel classes only a subset may be used for training).
-- Determine how many instances are available, and set up the $k$-shot $n$-way problem accordingly.
-- Prepare model structures for novel only and combined base+novel finetuning by adjusting the layer sizes to match the number of classes in the different sets. This includes scaling up the number of classes arbitrarily, which goes beyond the current functionality of the framework, that assumes a split of fixed number of classes.
+- Determine how many instances are available, and set up the k-shot n-way problem accordingly.
+- Prepare model structures for novel only and combined base+novel finetuning by adjusting the layer sizes to match the number of classes in the different sets. 
 - If the number of samples strongly varies, set up multiple training problems to make best use of the data, and run multiple fine-tuning steps.
 
 The tool currently supports annotations in COCO format. However, this does not mean that COCO is required as a base model, as long as the annotations are provided in this format. 
@@ -28,6 +28,7 @@ The tool currently supports annotations in COCO format. However, this does not m
 ```train_few_shot.py``` takes two arguments:
 - ```--datasetconfig```: path to the configuration file for the training problem
 - ```--ignoreunknown```: ignore annotations referring to classes not listed in the categories list of the annotation file
+- ```--splitfact```: split into two few shot training problems with different k, if the 50% of classes with more samples have > splitfact x minimum number of samples
 
 The configuration file is a YAML file with the following entries:
 - base: the base dataset
@@ -45,6 +46,14 @@ The configuration file is a YAML file with the following entries:
 -- test_dir: image based directory for the test data
 -- trainval:  COCO format annotation file for the training/validation data
 -- trainval_dir: image based directory for the training/validation data
+
+## Incremental training
+
+For incrementatally adding classes, the tool produces three output files that can be used as new inputs for the next training step:
+
+- ```datasets/<datasetname>/annotations/trainval-merged.json``` The combined training and validation data of the base and novel data
+- ```datasets/<datasetname>/annotations/test-merged.json``` The combined test data of the base and novel data
+- ```configs/custom_datasets/<configfilename>_base.yaml``` A configuration file containing the description of the new base dataset and classes
 
 ## Example
 

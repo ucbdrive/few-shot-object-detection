@@ -123,6 +123,9 @@ def default_argument_parser():
         "--dist-url", default="tcp://127.0.0.1:{}".format(port)
     )
     parser.add_argument(
+        "--custom_datacfg", type=str, help="config file of custom dataset"
+    )
+    parser.add_argument(
         "--opts",
         help="Modify config options using the command-line",
         default=None,

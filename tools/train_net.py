@@ -16,9 +16,11 @@ You may want to write your own script with your datasets and other customization
 
 from fsdet.config import get_cfg, set_global_cfg
 from fsdet.engine import DefaultTrainer, default_argument_parser, default_setup
+from fsdet.data import custom_dataset
 
 import detectron2.utils.comm as comm
 import os
+import sys
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.data import MetadataCatalog
 from detectron2.engine import launch
@@ -36,6 +38,8 @@ class Trainer(DefaultTrainer):
 
     @classmethod
     def build_evaluator(cls, cfg, dataset_name, output_folder=None):
+
+    
         """
         Create evaluator(s) for a given dataset.
         This uses the special metadata "evaluator_type" associated with each builtin dataset.
@@ -47,8 +51,15 @@ class Trainer(DefaultTrainer):
         evaluator_list = []
         evaluator_type = MetadataCatalog.get(dataset_name).evaluator_type
         if evaluator_type == "coco":
+            baseclsids = None
+            novelclsids = None
+        
+            if not(cfg.CUSTOMDATASET_BASE is None):
+                baseclsids = cfg.CUSTOMDATASET_BASE
+                novelclsids = cfg.CUSTOMDATASET_NOVEL
+        
             evaluator_list.append(
-                COCOEvaluator(dataset_name, cfg, True, output_folder)
+                COCOEvaluator(dataset_name, cfg, True, output_folder,baseclsids,novelclsids)
             )
         if evaluator_type == "pascal_voc":
             return PascalVOCDetectionEvaluator(dataset_name)
@@ -73,6 +84,18 @@ def setup(args):
     cfg.merge_from_file(args.config_file)
     if args.opts:
         cfg.merge_from_list(args.opts)
+        
+    # parse custom dataset
+    if not(args.custom_datacfg is None):
+        cds = custom_dataset.CustomDataset()
+
+        cds.parse(args.custom_datacfg)
+        cfg.CUSTOMDATASET_BASE = cds.get_base_class_ids()
+        cfg.CUSTOMDATASET_NOVEL = cds.get_novel_class_ids()
+    else:
+        cfg.CUSTOMDATASET_BASE = None
+        cfg.CUSTOMDATASET_NOVEL = None
+        
     cfg.freeze()
     set_global_cfg(cfg)
     default_setup(cfg, args)
@@ -80,7 +103,11 @@ def setup(args):
 
 
 def main(args):
+
+    custom_dataset.register_all_custom(args.custom_datacfg,"datasets")
+
     cfg = setup(args)
+
 
     if args.eval_only:
         model = Trainer.build_model(cfg)
@@ -101,9 +128,16 @@ def main(args):
     return trainer.train()
 
 
-if __name__ == "__main__":
+def _main(arglist):
+    
+    sys.argv = arglist
+    sys.argc = len(arglist)
+    
+    print(sys.argv)
+    
     args = default_argument_parser().parse_args()
     print("Command Line Args:", args)
+    
     launch(
         main,
         args.num_gpus,
@@ -112,3 +146,7 @@ if __name__ == "__main__":
         dist_url=args.dist_url,
         args=(args,),
     )
+
+if __name__ == "__main__":
+    _main(sys.argv)
+
