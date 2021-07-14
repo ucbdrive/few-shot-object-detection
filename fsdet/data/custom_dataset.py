@@ -165,11 +165,20 @@ class CustomDataset:
         if not(cfgtype=='all' or cfgtype=='novel'):
             print('unknown configuration file type: '+cfgtype)
    
+   
+        if cfgtype == 'novel':
+            modelsuffix = 'remove'
+        else:
+            modelsuffix = 'combine'
+        
+        weigtname = '"models/fs/faster_rcnn_R_101_FPN_' + self,get_name() + "/model_reset_" + modelsuffix + '.pth"'
         
         cfgstr1 = \
         """_BASE_: "../Base-RCNN-FPN.yaml"
 MODEL:
-  WEIGHTS: "models/fs/faster_rcnn_R_101_FPN_fs2/model_reset_combine.pth"
+  WEIGHTS: """
+        + weightname + \
+"""
   MASK_ON: False
   RESNETS:
     DEPTH: 101
