@@ -62,3 +62,8 @@ The example performs few shot training by adding a subset of 20 novel classes se
 The example configuration file is located at ```configs/custom_datasets/coco_lvis1.yaml```.
 
 The training is started with ```python train_few_shot.py --datasetconfig configs/custom_datasets/coco_lvis1.yaml --ignoreunknown```.
+
+
+### Acknowledgement
+
+This work has received funding from the European Union’s Horizon 2020 Research and Innovation Programme under grant agreement No 951911 [AI4Nedia](https://www.ai4media.eu/).
