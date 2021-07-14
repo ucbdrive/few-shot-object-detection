@@ -66,4 +66,4 @@ The training is started with ```python train_few_shot.py --datasetconfig configs
 
 ### Acknowledgement
 
-This work has received funding from the European Union’s Horizon 2020 Research and Innovation Programme under grant agreement No 951911 [AI4Nedia](https://www.ai4media.eu/).
+This work has received funding from the European Union’s Horizon 2020 Research and Innovation Programme under grant agreement No 951911 ([AI4Media](https://www.ai4media.eu/)).
