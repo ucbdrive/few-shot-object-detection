@@ -105,7 +105,7 @@ def generate_seeds(args,cds,ignoreUnknown,ID2CLASS,CLASS2ID):
             sample_shots = []
             sample_imgs = []
             for shots in [ cds.get_nshots() ]:
-                print('shots '+str(shots)+' '+str(len(img_ids.keys()))+' images')
+   
                 while True:
                     imgs = random.sample(list(img_ids.keys()), shots)
                     for img in imgs:
@@ -213,7 +213,15 @@ def generate_merged_trainval(cds):
     datamerged = data_base_trainval
 
     for i in datamerged['images']:
-        i['file_name'] = os.path.join(img_dir_base,i['file_name'])
+        # patch for mixed COCO train/val
+        if 'COCO' in i['file_name']:
+            valpath = img_dir_base.replace('train','val')
+            if 'val' in i['file_name']:
+                i['file_name'] = os.path.join(valpath,i['file_name'])
+            else:
+                i['file_name'] = os.path.join(img_dir_base,i['file_name'])
+        else:
+            i['file_name'] = os.path.join(img_dir_base,i['file_name'])
 
     
     # novel val
