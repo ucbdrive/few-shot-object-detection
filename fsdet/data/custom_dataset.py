@@ -171,13 +171,15 @@ class CustomDataset:
         else:
             modelsuffix = 'combine'
         
-        weigtname = '"models/fs/faster_rcnn_R_101_FPN_' + self,get_name() + "/model_reset_" + modelsuffix + '.pth"'
+        weightname = '"models/fs/faster_rcnn_R_101_FPN_' + self.get_name() + "/model_reset_" + modelsuffix + '.pth"'
         
         cfgstr1 = \
         """_BASE_: "../Base-RCNN-FPN.yaml"
 MODEL:
   WEIGHTS: """
-        + weightname + \
+        
+        
+        cfgstr1b = \
 """
   MASK_ON: False
   RESNETS:
@@ -224,9 +226,9 @@ SOLVER:
 OUTPUT_DIR: "models/fs/faster_rcnn_R_101_FPN_"""       
     
         if cfgtype=='all':
-            cfgstr = cfgstr1 + str(self.get_nclasses_all()) + '\n' + cfgstr2  + cfgstr_data_all + cfgstr_solver_all + self.get_name() + '"\n'
+            cfgstr = cfgstr1 + weightname + cfgstr1b + str(self.get_nclasses_all()) + '\n' + cfgstr2  + cfgstr_data_all + cfgstr_solver_all + self.get_name() + '"\n'
         if cfgtype=='novel':
-            cfgstr = cfgstr1 + str(self.get_nclasses_novel()) + '\n' + cfgstr1_novel + cfgstr2  + cfgstr_data_novel + cfgstr_solver_novel + self.get_name() + '/novel"\n'
+            cfgstr = cfgstr1 + weightname + cfgstr1b + str(self.get_nclasses_novel()) + '\n' + cfgstr1_novel + cfgstr2  + cfgstr_data_novel + cfgstr_solver_novel + self.get_name() + '/novel"\n'
         
     
         return cfgstr
