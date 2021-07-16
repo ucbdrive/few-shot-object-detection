@@ -57,6 +57,7 @@ class CustomDataset:
         self.datasetinfo['novel']['classes'] = {}
         self.datasetinfo['novel']['classcounts'] = {}
         for c in anno_novel['categories']:
+
             if len(self.datasetinfo['novel']['classes_subset'])>0:
                 if c['id'] in self.datasetinfo['novel']['classes_subset']:
                     self.datasetinfo['novel']['classes'][c['id']] = c['name']
@@ -64,11 +65,13 @@ class CustomDataset:
                         self.datasetinfo['novel']['classcounts'][c['id']] = c['image_count']
                     else:
                         self.datasetinfo['novel']['classcounts'][c['id']] = -1
+    
             else:
                 if 'instance_count' in c:
                     self.datasetinfo['novel']['classcounts'][c['id']] = c['image_count']
                 else:
                     self.datasetinfo['novel']['classcounts'][c['id']] = -1
+                    
                     
             # count annotations if data not provided
             if c['id'] in self.datasetinfo['novel']['classcounts'].keys():
@@ -78,7 +81,7 @@ class CustomDataset:
            
                     img_ids = {}
                     for a in anno_novel['annotations']:
-                        if a['category_id'] == c[id]:
+                        if a['category_id'] == c['id']:
                             img_ids[a['image_id']] = 1
                             
                     self.datasetinfo['novel']['classcounts'][c['id']] = len(img_ids.keys())
