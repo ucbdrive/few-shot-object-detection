@@ -164,6 +164,7 @@ def generate_merged_test(cds):
     for c in data_novel_test['categories']:
         c['id'] = c['id'] + cds.get_id_offset()
 
+
     datamerged['categories'] = datamerged['categories'] + data_novel_test['categories']
 
     for i in data_novel_test['images']:
@@ -186,6 +187,10 @@ def generate_merged_test(cds):
         a['category_id'] = a['category_id'] + cds.get_id_offset()
 
     datamerged['annotations'] = datamerged['annotations'] + data_novel_test['annotations']
+ 
+    for a in datamerged['annotations']:
+         if not('iscrowd' in a.keys()):
+            a['iscrowd'] = 0
  
     
     del data_novel_test
