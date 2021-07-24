@@ -21,6 +21,7 @@ class CustomDataset:
         # init   
         self.datasetinfo['name'] = ''
         self.datasetinfo['idoffset'] = 100
+        self.datasetinfo['maxk'] = -1
         self.datasetinfo['base'] = {}
         self.datasetinfo['base']['trainval'] = ''
         self.datasetinfo['base']['test'] = ''
@@ -86,6 +87,7 @@ class CustomDataset:
                             
                     self.datasetinfo['novel']['classcounts'][c['id']] = len(img_ids.keys())
 
+
        
   
     def serialise(self, filename):
@@ -97,6 +99,9 @@ class CustomDataset:
 
         with open(filename, 'r') as stream:
             self.datasetinfo = yaml.safe_load(stream)
+            
+        if not ('maxk' in self.datasetinfo.keys()):
+            self.datasetinfo['maxk'] = -1
 			
         if not skipAnnofiles:
             self.parse_classes()
@@ -118,9 +123,12 @@ class CustomDataset:
     def get_base_class_ids(self): 
         return list(self.datasetinfo['base']['classes'].keys())
 
-    def get_novel_class_ids(self): 
-        novelclasses = self.get_adjusted_novel_classes()
-        return list(novelclasses.keys())
+    def get_novel_class_ids(self,adjusted=True):
+        if adjusted: 
+            novelclasses = self.get_adjusted_novel_classes()
+            return list(novelclasses.keys())
+        else: 
+            return self.datasetinfo['novel']['classes']
         
     def get_base_train_annotation_file(self):
         return self.datasetinfo['base']['trainval']
@@ -153,7 +161,10 @@ class CustomDataset:
         return self.datasetinfo['name']
     
     def get_nshots(self):
-        return min(self.datasetinfo['novel']['classcounts'].values())
+        if self.datasetinfo['maxk']>0:
+            return min(min(self.datasetinfo['novel']['classcounts'].values()),self.datasetinfo['maxk'])
+        else:
+            return min(self.datasetinfo['novel']['classcounts'].values())
         
     def get_nclasses_all(self):
         return len(self.datasetinfo['base']['classes']) + self.get_nclasses_novel()
@@ -190,7 +201,7 @@ MODEL:
   ROI_HEADS:
     NUM_CLASSES: """
     
-        cfgstr1_novel = \
+        cfgstr1_all = \
 """    OUTPUT_LAYER: "CosineSimOutputLayers"
 """
         cfgstr2 = \
@@ -229,9 +240,9 @@ SOLVER:
 OUTPUT_DIR: "models/fs/faster_rcnn_R_101_FPN_"""       
     
         if cfgtype=='all':
-            cfgstr = cfgstr1 + weightname + cfgstr1b + str(self.get_nclasses_all()) + '\n' + cfgstr2  + cfgstr_data_all + cfgstr_solver_all + self.get_name() + '"\n'
+            cfgstr = cfgstr1 + weightname + cfgstr1b + str(self.get_nclasses_all()) + '\n' + cfgstr1_all + cfgstr2  + cfgstr_data_all + cfgstr_solver_all + self.get_name() + '"\n'
         if cfgtype=='novel':
-            cfgstr = cfgstr1 + weightname + cfgstr1b + str(self.get_nclasses_novel()) + '\n' + cfgstr1_novel + cfgstr2  + cfgstr_data_novel + cfgstr_solver_novel + self.get_name() + '/novel"\n'
+            cfgstr = cfgstr1 + weightname + cfgstr1b + str(self.get_nclasses_novel()) + '\n' + cfgstr2 + cfgstr_data_novel + cfgstr_solver_novel + self.get_name() + '/novel"\n'
         
     
         return cfgstr
@@ -319,12 +330,12 @@ def register_all_custom(cfgfilename,root="datasets"):
         (
             cds.get_name() + "_trainval_all",
             "",
-            cds.get_name() + "/annotations/train-merged.json",
+            cds.get_name() + "/annotations/trainval-merged.json",
         ),
         (
             cds.get_name() + "_trainval_base",
             "",
-            cds.get_name() + "/annotations/train-merged.json",
+            cds.get_name() + "/annotations/trainval-merged.json",
         ),
         (cds.get_name() + "_test_all", "", cds.get_name() + "/annotations/test-merged.json"),
         (cds.get_name() + "_test_base", "", cds.get_name() + "/annotations/test-merged.json"),
@@ -338,6 +349,7 @@ def register_all_custom(cfgfilename,root="datasets"):
                 seed = "" if seed == 0 else "_seed{}".format(seed)
                 name = cds.get_name() + "_trainval_{}_{}shot{}".format(prefix, shot, seed)
                 METASPLITS.append((name, "", ""))
+
 
     for name, imgdir, annofile in METASPLITS:
         register_meta_custom(
@@ -461,6 +473,14 @@ def load_custom_json(json_file, image_root, metadata, dataset_name, dsname):
 
 
 def register_meta_custom(name, metadata, imgdir, annofile, dsname):
+
+    try:
+        DatasetCatalog.get(name)
+        # if dataset is found, return
+        return
+    except KeyError as e:
+        found = False
+
     DatasetCatalog.register(
         name,
         lambda: load_custom_json(annofile, imgdir, metadata, name, dsname ),
@@ -472,6 +492,9 @@ def register_meta_custom(name, metadata, imgdir, annofile, dsname):
             "{}_dataset_id_to_contiguous_id".format(split)
         ]
         metadata["thing_classes"] = metadata["{}_classes".format(split)]
+        
+        print("thing len of "+name)
+        print(metadata["thing_classes"])
 
     MetadataCatalog.get(name).set(
         json_file=annofile,
@@ -510,6 +533,7 @@ def _get_custom_instances_meta(cds):
 
 def _get_custom_fewshot_instances_meta(cds):
     CUSTOM_NOVEL_CATEGORIES = cds.get_novel_categories_color()
+    CUSTOM_CATEGORIES = cds.get_base_categories_color()
 
     ret = _get_custom_instances_meta(cds)
     novel_ids = [k["id"] for k in CUSTOM_NOVEL_CATEGORIES if k["isthing"] == 1]
@@ -519,7 +543,7 @@ def _get_custom_fewshot_instances_meta(cds):
     ]
     base_categories = [
         k
-        for k in CUSTOM_NOVEL_CATEGORIES
+        for k in CUSTOM_CATEGORIES
         if k["isthing"] == 1 and k["name"] not in novel_classes
     ]
     base_ids = [k["id"] for k in base_categories]

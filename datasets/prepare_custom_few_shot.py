@@ -107,6 +107,9 @@ def generate_seeds(args,cds,ignoreUnknown,ID2CLASS,CLASS2ID):
 
             sample_shots = []
             sample_imgs = []
+            
+            #print("class "+str(c)+", nshots "+str(cds.get_nshots())+ " nimgs "+str(len(img_ids)))
+            
             for shots in [ cds.get_nshots() ]:
    
                 while True:

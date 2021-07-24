@@ -104,9 +104,12 @@ def setup(args):
 
 def main(args):
 
-    custom_dataset.register_all_custom(args.custom_datacfg,"datasets")
 
     cfg = setup(args)
+
+    if not (cfg.CUSTOMDATASET_BASE == None):
+    
+        custom_dataset.register_all_custom(args.custom_datacfg,"datasets")
 
 
     if args.eval_only:

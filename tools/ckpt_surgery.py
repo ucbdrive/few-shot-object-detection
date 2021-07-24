@@ -39,6 +39,8 @@ def parse_args():
                         help='For COCO models')
     parser.add_argument('--lvis', action='store_true',
                         help='For LVIS models')
+    parser.add_argument('--coco_sn', action='store_true',
+                        help='For COCO+SCANNET models')
     parser.add_argument('--custom', type=str,
                         help='For custom dataset, provide the configuration file')
     args = parser.parse_args()
@@ -265,6 +267,29 @@ def main(arglist):
         ALL_CLASSES = sorted(BASE_CLASSES + NOVEL_CLASSES)
         IDMAP = {v:i for i, v in enumerate(ALL_CLASSES)}
         TAR_SIZE = 1230
+    elif args.coco_sn:
+        # COCO+SCANNET
+        NOVEL_CLASSES = [
+            103, 110, 111, 114, 115, 116, 117, 118, 132, 135
+        ]
+        #BASE_CLASSES = [
+        #    1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35,
+        #    36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+        #    55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 67, 70, 73, 74, 75, 76, 77, 78, 79, 80,
+        #    81, 82, 84, 85, 86, 87, 88, 89, 90
+        #]
+        BASE_CLASSES = [
+            8, 10, 11, 13, 14, 15, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+            55, 56, 57, 58, 59, 60, 61, 65, 70, 73, 74, 75, 76, 77, 78, 79, 80,
+            81, 82, 84, 85, 86, 87, 88, 89, 90,
+        ]        
+        ALL_CLASSES = sorted(BASE_CLASSES + NOVEL_CLASSES)
+        IDMAP = {v:i for i, v in enumerate(ALL_CLASSES)}
+        # TAR_SIZE = 90
+        TAR_SIZE = 70
+        # set also args.coco
+        args.coco = True
     else:
         # VOC
         TAR_SIZE = 20

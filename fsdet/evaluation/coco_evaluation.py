@@ -58,20 +58,44 @@ class COCOEvaluator(DatasetEvaluator):
         self._is_splits = "all" in dataset_name or "base" in dataset_name \
             or "novel" in dataset_name
             
+        if dataset_name.startswith("coco_sn"):
 
-       self._base_classes = [
-           8, 10, 11, 13, 14, 15, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35,
-           36, 37, 38, 39, 40, 41, 42, 43, 46, 47, 48, 49, 50, 51, 52, 53, 54,
-           55, 56, 57, 58, 59, 60, 61, 65, 70, 73, 74, 75, 76, 77, 78, 79, 80,
-           81, 82, 84, 85, 86, 87, 88, 89, 90,
-        ]
-        self._novel_classes = [1, 2, 3, 4, 5, 6, 7, 9, 16, 17, 18, 19, 20, 21,
-                               44, 62, 63, 64, 67, 72]
+            #self._base_classes = [
+            #    1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35,
+            #    36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+            #    55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 67, 70, 73, 74, 75, 76, 77, 78, 79, 80,
+            #    81, 82, 84, 85, 86, 87, 88, 89, 90
+            #]
+            self._base_classes = [
+                8, 10, 11, 13, 14, 15, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35,
+                36, 37, 38, 39, 40, 41, 42, 43, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+                55, 56, 57, 58, 59, 60, 61, 65, 70, 73, 74, 75, 76, 77, 78, 79, 80,
+                81, 82, 84, 85, 86, 87, 88, 89, 90,
+            ]
+            self._novel_classes = [
+                103, 110, 111, 114, 115, 116, 117, 118, 132, 135
+            ]
+        else:
+            self._base_classes = [
+                8, 10, 11, 13, 14, 15, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35,
+                36, 37, 38, 39, 40, 41, 42, 43, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+                55, 56, 57, 58, 59, 60, 61, 65, 70, 73, 74, 75, 76, 77, 78, 79, 80,
+                81, 82, 84, 85, 86, 87, 88, 89, 90,
+            ]
+            self._novel_classes = [1, 2, 3, 4, 5, 6, 7, 9, 16, 17, 18, 19, 20, 21,
+                                   44, 62, 63, 64, 67, 72]
+                                   
+        print("coco eval init")
+        print(baseclasslist)
                                    
         if not(baseclasslist is None):
             self._base_classes = baseclasslist
         if not(novelclasslist is None):
             self._novel_classes = novelclasslist
+
+        print("base class len "+str(len(self._base_classes)))
+        print("novel class len "+str(len(self._novel_classes)))
+        
 
         json_file = PathManager.get_local_path(self._metadata.json_file)
         with contextlib.redirect_stdout(io.StringIO()):
@@ -246,6 +270,10 @@ class COCOEvaluator(DatasetEvaluator):
         # from https://github.com/facebookresearch/Detectron/blob/a6a835f5b8208c45d0dce217ce9bbda915f44df7/detectron/datasets/json_dataset_evaluator.py#L222-L252 # noqa
         precisions = coco_eval.eval["precision"]
         # precision has dims (iou, recall, cls, area range, max dets)
+        
+        print("len class names "+str(len(class_names)))
+        print("len prec shape "+str(precisions.shape[2]))
+        
         assert len(class_names) == precisions.shape[2]
 
         results_per_category = []

@@ -43,14 +43,13 @@ def process_training_task(cds,cdsconfig,ignoreunknown):
         
         
     print('prepare model')
-    surgeryfct(['ckpt_surgery','--src1',cds.get_base_model_file(),'--method','remove','--custom',cdsconfig,'--save-dir','models/fs/faster_rcnn_R_101_FPN_'+cds.get_name()])
-
+    surgeryfct(['ckpt_surgery','--src1',cds.get_base_model_file(),'--method','remove','--custom',cdsconfig,'--save-dir','models/fs/faster_rcnn_R_101_FPN_'+cds.get_name()])        
         
     print('few shot training')
-   
-        
+       
     trainfct(['train_net','--config-file','configs/custom_datasets/faster_rcnn_R_101_FPN_ft_novel_fshot_'+cds.get_name()+'.yaml','--custom_datacfg','configs/custom_datasets/'+cds.get_name()+'.yaml','--opts','MODEL.WEIGHTS','models/fs/faster_rcnn_R_101_FPN_'+cds.get_name()+'/model_reset_remove.pth'])
-    
+ 
+   
     print('combine model')
 
     surgeryfct(['ckpt_surgery','--src1',cds.get_base_model_file(),'--src2','models/fs/faster_rcnn_R_101_FPN_'+cds.get_name()+'/novel/model_final.pth','--method','combine','--custom',cdsconfig,'--save-dir','models/fs/faster_rcnn_R_101_FPN_'+cds.get_name()])
