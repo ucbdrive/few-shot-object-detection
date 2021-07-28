@@ -85,16 +85,12 @@ class COCOEvaluator(DatasetEvaluator):
             self._novel_classes = [1, 2, 3, 4, 5, 6, 7, 9, 16, 17, 18, 19, 20, 21,
                                    44, 62, 63, 64, 67, 72]
                                    
-        print("coco eval init")
-        print(baseclasslist)
                                    
         if not(baseclasslist is None):
             self._base_classes = baseclasslist
         if not(novelclasslist is None):
             self._novel_classes = novelclasslist
 
-        print("base class len "+str(len(self._base_classes)))
-        print("novel class len "+str(len(self._novel_classes)))
         
 
         json_file = PathManager.get_local_path(self._metadata.json_file)

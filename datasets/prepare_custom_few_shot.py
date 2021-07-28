@@ -147,6 +147,9 @@ def generate_merged_test(cds):
     data_path_base = cds.get_base_test_annotation_file()
     data_path_novel = cds.get_novel_test_annotation_file()
     
+    base_ids = cds.get_base_class_ids()
+    novel_ids = cds.get_novel_class_ids(False)
+    
     img_dir_base = cds.get_base_test_dir()
     img_dir_novel = cds.get_novel_test_dir()
 
@@ -159,14 +162,25 @@ def generate_merged_test(cds):
     for i in datamerged['images']:
         i['file_name'] = os.path.join(img_dir_base,i['file_name'])
 
+    filtered_cats = []
+
+    for c in datamerged['categories']:
+        if c['id'] in base_ids:
+            filtered_cats.append(c)
+    datamerged['categories'] = filtered_cats
     
     # novel val
     data_novel_test = json.load(open(data_path_novel))
 
     
-    for c in data_novel_test['categories']:
-        c['id'] = c['id'] + cds.get_id_offset()
+    filtered_cats = []
 
+    for c in data_novel_test['categories']:
+        if c['id'] in novel_ids:
+            filtered_cats.append(c)
+            c['id'] = c['id'] + cds.get_id_offset()
+    data_novel_test['categories'] = filtered_cats
+    
 
     datamerged['categories'] = datamerged['categories'] + data_novel_test['categories']
 
@@ -186,9 +200,21 @@ def generate_merged_test(cds):
         
     datamerged['images'] = datamerged['images'] + data_novel_test['images']
     
-    for a in data_novel_test['annotations']:
-        a['category_id'] = a['category_id'] + cds.get_id_offset()
+    filtered_annots = []
 
+    for a in datamerged['annotations']:
+        if a['category_id'] in base_ids:
+            filtered_annots.append(a)
+    datamerged['annotations'] = filtered_annots
+    
+    filtered_annots = []
+
+    for a in data_novel_test['annotations']:
+        if a['category_id'] in novel_ids:
+            filtered_annots.append(a)
+            a['category_id'] = a['category_id'] + cds.get_id_offset()
+    data_novel_test['annotations'] = filtered_annots
+    
     datamerged['annotations'] = datamerged['annotations'] + data_novel_test['annotations']
  
     for a in datamerged['annotations']:
@@ -217,6 +243,10 @@ def generate_merged_trainval(cds):
     data_path_base = cds.get_base_train_annotation_file()
     data_path_novel = cds.get_novel_train_annotation_file()
     
+    base_ids = cds.get_base_class_ids()
+    novel_ids = cds.get_novel_class_ids(False)
+
+    
     img_dir_base = cds.get_base_train_dir()
     img_dir_novel = cds.get_novel_train_dir()
 
@@ -237,13 +267,25 @@ def generate_merged_trainval(cds):
         else:
             i['file_name'] = os.path.join(img_dir_base,i['file_name'])
 
+    filtered_cats = []
+
+    for c in datamerged['categories']:
+        if c['id'] in base_ids:
+            filtered_cats.append(c)
+    datamerged['categories'] = filtered_cats
+
     
     # novel val
     data_novel_trainval = json.load(open(data_path_novel))
 
     
+    filtered_cats = []
+
     for c in data_novel_trainval['categories']:
-        c['id'] = c['id'] + cds.get_id_offset()
+        if c['id'] in novel_ids:
+            filtered_cats.append(c)
+            c['id'] = c['id'] + cds.get_id_offset()
+    data_novel_trainval['categories'] = filtered_cats
 
     datamerged['categories'] = datamerged['categories'] + data_novel_trainval['categories']
 
@@ -263,8 +305,20 @@ def generate_merged_trainval(cds):
         
     datamerged['images'] = datamerged['images'] + data_novel_trainval['images']
     
+    filtered_annots = []
+
+    for a in datamerged['annotations']:
+        if a['category_id'] in base_ids:
+            filtered_annots.append(a)
+    datamerged['annotations'] = filtered_annots
+    
+    filtered_annots = []
+
     for a in data_novel_trainval['annotations']:
-        a['category_id'] = a['category_id'] + cds.get_id_offset()
+        if a['category_id'] in novel_ids:
+            filtered_annots.append(a)
+            a['category_id'] = a['category_id'] + cds.get_id_offset()
+    data_novel_trainval['annotations'] = filtered_annots
 
     datamerged['annotations'] = datamerged['annotations'] + data_novel_trainval['annotations']
  

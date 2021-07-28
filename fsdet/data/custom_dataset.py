@@ -102,6 +102,13 @@ class CustomDataset:
             
         if not ('maxk' in self.datasetinfo.keys()):
             self.datasetinfo['maxk'] = -1
+
+        if not ('classes_subset' in self.datasetinfo['base'].keys()):
+            self.datasetinfo['maxk'] = []
+
+        if not ('classes_subset' in self.datasetinfo['novel'].keys()):
+            self.datasetinfo['maxk'] = []
+
 			
         if not skipAnnofiles:
             self.parse_classes()
@@ -492,9 +499,7 @@ def register_meta_custom(name, metadata, imgdir, annofile, dsname):
             "{}_dataset_id_to_contiguous_id".format(split)
         ]
         metadata["thing_classes"] = metadata["{}_classes".format(split)]
-        
-        print("thing len of "+name)
-        print(metadata["thing_classes"])
+       
 
     MetadataCatalog.get(name).set(
         json_file=annofile,
