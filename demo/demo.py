@@ -11,6 +11,7 @@ from demo.predictor import VisualizationDemo
 from detectron2.data.detection_utils import read_image
 from detectron2.utils.logger import setup_logger
 from fsdet.config import get_cfg
+from fsdet.data import custom_dataset
 
 # constants
 WINDOW_NAME = "COCO detections"
@@ -57,8 +58,13 @@ def get_parser():
     parser.add_argument(
         "--confidence-threshold",
         type=float,
-        default=0.5,
+        default=0.1,
         help="Minimum score for instance predictions to be shown",
+    )
+    parser.add_argument(
+        "--custom-dataset",
+        type=str,
+        help="Custom dataset configuration file",
     )
     parser.add_argument(
         "--opts",
@@ -75,6 +81,12 @@ if __name__ == "__main__":
     setup_logger(name="fvcore")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
+
+
+    if not (args.custom_dataset == None):
+    
+        custom_dataset.register_all_custom(args.custom_dataset,"datasets")
+
 
     cfg = setup_cfg(args)
 

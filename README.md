@@ -64,6 +64,7 @@ The example configuration file is located at ```configs/custom_datasets/coco_lvi
 
 The training is started with ```python train_few_shot.py --datasetconfig configs/custom_datasets/coco_lvis1.yaml --ignoreunknown```.
 
+To run the inference demo with the resulting model, use ```python -m demo.demo --config-file configs/custom_datasets/faster_rcnn_R_101_FPN_ft_all_fshot_coco_lvis1.yaml --input myimage.jpg --output result.png --custom-dataset configs/custom_datasets/coco_lvis1.yaml --opts MODEL.WEIGHTS models/fs/faster_rcnn_R_101_FPN_coco_lvis1/model_final.pth```
 
 ### Acknowledgement
 
