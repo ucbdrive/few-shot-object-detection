@@ -42,11 +42,11 @@ The configuration file is a YAML file with the following entries:
 - name: name for the combined dataset (will be used in configuration file and model names)
 - maxk: maximum number of samples per class to use (mostly useful if testing few-shot training with data from a large dataset), if omitted or set to -1, the number of classes will be determined from the available data
 - novel: the novel dataset
--- classes_subset: a list class IDs of the categories found in the trainval file of the novel dataset, which shall be used in the few shot training
--- test: COCO format annotation file for the test data
--- test_dir: image based directory for the test data
--- trainval:  COCO format annotation file for the training/validation data
--- trainval_dir: image based directory for the training/validation data
+    - classes_subset: a list class IDs of the categories found in the trainval file of the novel dataset, which shall be used in the few shot training
+    - test: COCO format annotation file for the test data
+    - test_dir: image based directory for the test data
+    - trainval:  COCO format annotation file for the training/validation data
+    - trainval_dir: image based directory for the training/validation data
 
 ## Incremental training
 
