@@ -109,6 +109,7 @@ def generate_seeds(args,cds,ignoreUnknown,ID2CLASS,CLASS2ID):
             sample_imgs = []
             
             #print("class "+str(c)+", nshots "+str(cds.get_nshots())+ " nimgs "+str(len(img_ids)))
+
             
             for shots in [ cds.get_nshots() ]:
    
@@ -122,9 +123,14 @@ def generate_seeds(args,cds,ignoreUnknown,ID2CLASS,CLASS2ID):
                                 break
                         if skip:
                             continue
-                        if len(img_ids[img]) + len(sample_shots) > shots:
-                            continue
-                        sample_shots.extend(img_ids[img])
+                        #if len(img_ids[img]) + len(sample_shots) > shots:
+                        #    continue
+                        # adjust for missing number of annotation
+                        if len(img_ids[img]) > shots - len(sample_shots):
+                            sample_shots.extend(img_ids[img][0:shots - len(sample_shots)])
+                            print(str(len(sample_shots)))
+                        else:
+                            sample_shots.extend(img_ids[img])
                         sample_imgs.append(id2img[img])
                         if len(sample_shots) == shots:
                             break
@@ -371,6 +377,7 @@ def main(arglist):
     
     # write config files
     cfgfilename = 'faster_rcnn_R_101_FPN_ft_novel_fshot_' + cds.get_name() + '.yaml'
+
     with open(os.path.join('configs','custom_datasets',cfgfilename), 'w') as f:
         f.write(cds.get_config_file('novel'))
         
