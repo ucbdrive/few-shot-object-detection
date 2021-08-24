@@ -32,12 +32,12 @@ The tool currently supports annotations in COCO format. However, this does not m
 
 The configuration file is a YAML file with the following entries:
 - base: the base dataset
--- classes_subset: a list class IDs of the categories found in the trainval file of the base dataset, which have been trained into the provided model.
--- model: the trained model file for the base classes
--- test: COCO format annotation file for the test data
--- test_dir: image based directory for the test data
--- trainval:  COCO format annotation file for the training/validation data
--- trainval_dir: image based directory for the training/validation data
+    - classes_subset: a list class IDs of the categories found in the trainval file of the base dataset, which have been trained into the provided model.
+    - model: the trained model file for the base classes
+    - test: COCO format annotation file for the test data
+    - test_dir: image based directory for the test data
+    - trainval:  COCO format annotation file for the training/validation data
+    - trainval_dir: image based directory for the training/validation data
 - idoffset: integer to add to IDs in the novel categories to avoid clashes in numbering
 - name: name for the combined dataset (will be used in configuration file and model names)
 - maxk: maximum number of samples per class to use (mostly useful if testing few-shot training with data from a large dataset), if omitted or set to -1, the number of classes will be determined from the available data
