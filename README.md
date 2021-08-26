@@ -48,7 +48,7 @@ The configuration file is a YAML file with the following entries:
     - trainval:  COCO format annotation file for the training/validation data
     - trainval_dir: image base directory for the training/validation data
 
-Alternatively, a single dataset can be provided for the nove dataset, which is split automatically. If either trainval or test are missing, the following entries for the novel dataset must be provided:
+Alternatively, a single dataset can be provided for the novel dataset, which is split automatically. If either trainval or test are missing, the following entries for the novel dataset must be provided:
 - novel
     - data: COCO format annotation file for the dataset
     - data_dir: image base directory for the dataset
