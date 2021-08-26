@@ -11,6 +11,8 @@ import contextlib
 import os
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import BoxMode
+import copy
+import math
 
 class CustomDataset:
 
@@ -40,7 +42,9 @@ class CustomDataset:
         self.datasetinfo['novel']['test'] = ''
         self.datasetinfo['novel']['trainval_dir'] = ''
         self.datasetinfo['novel']['test_dir'] = ''
-
+        self.datasetinfo['novel']['data'] = ''
+        self.datasetinfo['novel']['data_dir'] = ''
+        self.datasetinfo['novel']['data_split'] = 0.7
 	   
     def parse_classes(self):
         anno_base = json.load(open(self.datasetinfo['base']['trainval']))
@@ -104,11 +108,28 @@ class CustomDataset:
             self.datasetinfo['maxk'] = -1
 
         if not ('classes_subset' in self.datasetinfo['base'].keys()):
-            self.datasetinfo['maxk'] = []
+            self.datasetinfo['base']['classes_subset'] = []
 
         if not ('classes_subset' in self.datasetinfo['novel'].keys()):
-            self.datasetinfo['maxk'] = []
+            self.datasetinfo['novel']['classes_subset'] = []
 
+        # check if combined trainval and test data is provided and split
+        if not('trainval' in self.datasetinfo['novel'].keys()) or not('test' in self.datasetinfo['novel'].keys()):
+            if not('data_dir' in self.datasetinfo['novel'].keys()) or not('data_split' in self.datasetinfo['novel'].keys()):
+                print('If trainval and test data are provided in a single file, the data directory and split ratio must be provided')
+                exit()
+                
+            dotidx = self.datasetinfo['novel']['data'].index('.')
+                
+            self.datasetinfo['novel']['trainval'] = self.datasetinfo['novel']['data'][:dotidx] + '_train' + self.datasetinfo['novel']['data'][dotidx:]
+            self.datasetinfo['novel']['test'] = self.datasetinfo['novel']['data'][:dotidx] + '_val' + self.datasetinfo['novel']['data'][dotidx:]
+            
+            self.datasetinfo['novel']['trainval_dir'] = self.datasetinfo['novel']['data_dir']
+            self.datasetinfo['novel']['test_dir'] = self.datasetinfo['novel']['data_dir']
+
+            self.datasetinfo['novel']['classcounts'] = self.split_data(self.datasetinfo['novel']['data'],self.datasetinfo['novel']['data_split'],self.datasetinfo['novel']['trainval'],self.datasetinfo['novel']['test'])
+			
+            self.serialise(filename)
 			
         if not skipAnnofiles:
             self.parse_classes()
@@ -305,7 +326,89 @@ OUTPUT_DIR: "models/fs/faster_rcnn_R_101_FPN_"""
         
         return cdm
         
+    def split_data(self,datafn,split,trainvalfn,testfn):
+
+        anno_novel = json.load(open(datafn))
+	   
+        classes = {}
+        classcounts = {}
+        for c in anno_novel['categories']:
+
+            if len(self.datasetinfo['novel']['classes_subset'])>0:
+                if c['id'] in self.datasetinfo['novel']['classes_subset']:
+                    classes[c['id']] = c['name']
+                    if 'instance_count' in c:
+                        classcounts[c['id']] = c['image_count']
+                    else:
+                        classcounts[c['id']] = -1
+    
+            else:
+                if 'instance_count' in c:
+                    classcounts[c['id']] = c['image_count']
+                else:
+                    classcounts[c['id']] = -1
+                    
+            classcounts_trainval = copy.deepcopy(classcounts)
+            classcounts_test = copy.deepcopy(classcounts)
+                    
+            # count annotations if data not provided
+            if c['id'] in classcounts.keys():
+                if classcounts[c['id']] == -1:
+           
+                    classcounts[c['id']] = 0
+           
+                    img_ids = {}
+                    for a in anno_novel['annotations']:
+                        if a['category_id'] == c['id']:
+                            img_ids[a['image_id']] = 1
+                            
+                    classcounts[c['id']] = len(img_ids.keys())
+                    
+                    classcounts_trainval[c['id']] = math.floor(classcounts[c['id']] * split)
+                    classcounts_test[c['id']] = math.ceil(classcounts[c['id']] * split)
+
+        anno_trainval = {}
+        anno_test = {}
+        
+        anno_trainval['info'] = copy.deepcopy(anno_novel['info'])
+        anno_trainval['categories'] = copy.deepcopy(anno_novel['categories'])
+        anno_trainval['images'] = []
+        anno_trainval['annotations'] = []
+        anno_test['info'] = copy.deepcopy(anno_novel['info'])
+        anno_test['categories'] = copy.deepcopy(anno_novel['categories'])
+        anno_test['images'] = []
+        anno_test['annotations'] = []
+            
+         
+        for c in anno_novel['categories']:
+            distarr = rand_bin_array(classcounts_trainval[c['id']],classcounts[c['id']])
+            
+            for i in range(len(distarr)):
+                trg = anno_trainval
+                if distarr[i] == 1:
+                    trg = anno_test
+                trg['images'].append(anno_novel['images'][i])
+                
+                for a in anno_novel['annotations']:
+                    if a['image_id'] == anno_novel['images'][i]['id']:
+                        trg['annotations'].append(a)
+                
+   
+        json.dump(anno_trainval,open(trainvalfn,'w'))
+        json.dump(anno_test,open(testfn,'w'))
+   
+        return classcounts_trainval
+
+       
+        
 # util functions
+
+def rand_bin_array(K, N):
+    arr = np.ones(N)
+    arr[:K]  = 0
+    np.random.shuffle(arr)
+    return arr
+
 
 # for builtin and custom meta
 
