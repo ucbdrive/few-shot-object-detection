@@ -72,6 +72,7 @@ class CustomDataset:
                         self.datasetinfo['novel']['classcounts'][c['id']] = -1
     
             else:
+                self.datasetinfo['novel']['classes'][c['id']] = c['name']
                 if 'instance_count' in c:
                     self.datasetinfo['novel']['classcounts'][c['id']] = c['image_count']
                 else:
@@ -343,6 +344,7 @@ OUTPUT_DIR: "models/fs/faster_rcnn_R_101_FPN_"""
                         classcounts[c['id']] = -1
     
             else:
+                classes[c['id']] = c['name']
                 if 'instance_count' in c:
                     classcounts[c['id']] = c['image_count']
                 else:
