@@ -24,7 +24,7 @@ If you find this repository useful for your publications, please consider citing
 ```
 
 ## Updates
-The code has been upgraded to detectron2 v0.2.1.  If you need the original released code, please checkout the release [v0.1](https://github.com/ucbdrive/few-shot-object-detection/tags) in the tag.  
+- (Oct 2020) The code has been upgraded to detectron2 v0.2.1.  If you need the original released code, please checkout the release [v0.1](https://github.com/ucbdrive/few-shot-object-detection/tags) in the tag.  
 
 
 
@@ -43,7 +43,7 @@ The code has been upgraded to detectron2 v0.2.1.  If you need the original relea
 * Linux with Python >= 3.6
 * [PyTorch](https://pytorch.org/get-started/locally/) >= 1.4
 * [torchvision](https://github.com/pytorch/vision/) that matches the PyTorch installation
-* CUDA 10.0, 10.1, 10.2
+* CUDA 9.2, 10.0, 10.1, 10.2, 11.0
 * GCC >= 4.9
 
 **Build FsDet**
@@ -57,15 +57,14 @@ You can also use `conda` to create a new environment.
 conda create --name fsdet
 conda activate fsdet
 ```
-* Install Pytorch 1.6 with CUDA 10.2 
+* Install PyTorch. You can choose the PyTorch and CUDA version according to your machine. Just make sure your PyTorch version matches the prebuilt Detectron2 version (next step). Example for PyTorch v1.6.0:
 ```angular2html
-pip install torch torchvision
+pip install torch==1.6.0 torchvision==0.7.0
 ```
-You can choose the Pytorch and CUDA version according to your machine.
-Just to make sure your Pytorch version matches the [prebuilt detectron2](https://github.com/facebookresearch/detectron2/blob/master/INSTALL.md#install-pre-built-detectron2-linux-only)
-* Install Detectron2 v0.2.1
+Currently, the codebase is compatible with [Detectron2 v0.2.1](https://github.com/facebookresearch/detectron2/releases/tag/v0.2.1) and [Detectron2 v0.3](https://github.com/facebookresearch/detectron2/releases/tag/v0.3). Example for PyTorch v1.6.0 and CUDA v10.2:
+* Install Detectron2 v0.3
 ```angular2html
-python3 -m pip install detectron2 -f \
+python3 -m pip install detectron2==0.3 -f \
   https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.6/index.html
 ```
 * Install other requirements. 
