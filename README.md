@@ -97,6 +97,7 @@ We evaluate our models on three datasets:
 
 See [datasets/README.md](datasets/README.md) for more details.
 
+If you would like to use your own custom dataset, see [CUSTOM.md](docs/CUSTOM.md) for instructions. If you would like to contribute your custom dataset to our codebase, feel free to open a PR.
 
 ## Models
 We provide a set of benchmark results and pre-trained models available for download in [MODEL_ZOO.md](docs/MODEL_ZOO.md).
