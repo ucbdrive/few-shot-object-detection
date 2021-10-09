@@ -1,4 +1,3 @@
-from detectron2.config import CfgNode as CN
 from detectron2.config.defaults import _C
 
 # adding additional default values built on top of the default values in detectron2

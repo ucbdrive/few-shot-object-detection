@@ -12,6 +12,7 @@ FsDet.egg-info
 build/
 install/
 .ipynb_checkpoints/
+.venv
 
 fsdet/model_zoo/configs
 logger-files/

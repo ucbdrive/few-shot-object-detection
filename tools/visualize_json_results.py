@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 
-import numpy as np
-import cv2
-import tqdm
-from fvcore.common.file_io import PathManager
-
 import argparse
 import json
 import os
 from collections import defaultdict
+
+import cv2
+import numpy as np
+import tqdm
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import Boxes, BoxMode, Instances
 from detectron2.utils.logger import setup_logger
 from detectron2.utils.visualizer import Visualizer
+from fvcore.common.file_io import PathManager
 
 
 def create_instances(predictions, image_size):

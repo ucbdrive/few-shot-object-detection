@@ -3,8 +3,8 @@ import logging
 import time
 from collections import OrderedDict
 from contextlib import contextmanager
-import torch
 
+import torch
 from detectron2.utils.comm import is_main_process
 
 
@@ -24,7 +24,6 @@ class DatasetEvaluator:
         Preparation for a new round of evaluation.
         Should be called before starting a round of evaluation.
         """
-        pass
 
     def process(self, input, output):
         """
@@ -34,7 +33,6 @@ class DatasetEvaluator:
             input: the input that's used to call the model.
             output: the return value of `model(output)`
         """
-        pass
 
     def evaluate(self):
         """
@@ -49,7 +47,6 @@ class DatasetEvaluator:
                 * key: the name of the task (e.g., bbox)
                 * value: a dict of {metric name: score}, e.g.: {"AP50": 80}
         """
-        pass
 
 
 class DatasetEvaluators(DatasetEvaluator):
@@ -74,7 +71,9 @@ class DatasetEvaluators(DatasetEvaluator):
                 for k, v in result.items():
                     assert (
                         k not in results
-                    ), "Different evaluators produce results with the same key {}".format(k)
+                    ), "Different evaluators produce results with the same key {}".format(
+                        k
+                    )
                     results[k] = v
         return results
 
@@ -99,7 +98,11 @@ def inference_on_dataset(model, data_loader, evaluator):
     Returns:
         The return value of `evaluator.evaluate()`
     """
-    num_devices = torch.distributed.get_world_size() if torch.distributed.is_initialized() else 1
+    num_devices = (
+        torch.distributed.get_world_size()
+        if torch.distributed.is_initialized()
+        else 1
+    )
     logger = logging.getLogger(__name__)
     logger.info("Start inference on {} images".format(len(data_loader)))
 
@@ -126,7 +129,9 @@ def inference_on_dataset(model, data_loader, evaluator):
                 duration = time.time() - start_time
                 seconds_per_img = duration / (idx + 1 - num_warmup)
                 eta = datetime.timedelta(
-                    seconds=int(seconds_per_img * (total - num_warmup) - duration)
+                    seconds=int(
+                        seconds_per_img * (total - num_warmup) - duration
+                    )
                 )
                 logger.info(
                     "Inference done {}/{}. {:.4f} s / img. ETA={}".format(
@@ -143,10 +148,14 @@ def inference_on_dataset(model, data_loader, evaluator):
             total_time_str, total_time / (total - num_warmup), num_devices
         )
     )
-    total_compute_time_str = str(datetime.timedelta(seconds=int(total_compute_time)))
+    total_compute_time_str = str(
+        datetime.timedelta(seconds=int(total_compute_time))
+    )
     logger.info(
         "Total inference pure compute time: {} ({:.6f} s / img per device, on {} devices)".format(
-            total_compute_time_str, total_compute_time / (total - num_warmup), num_devices
+            total_compute_time_str,
+            total_compute_time / (total - num_warmup),
+            num_devices,
         )
     )
 

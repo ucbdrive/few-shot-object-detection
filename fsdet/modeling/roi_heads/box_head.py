@@ -1,11 +1,11 @@
-import numpy as np
+# flake8: noqa
 import fvcore.nn.weight_init as weight_init
+import numpy as np
 import torch
-from torch import nn
-from torch.nn import functional as F
-
 from detectron2.layers import Conv2d, ShapeSpec, get_norm
 from detectron2.utils.registry import Registry
+from torch import nn
+from torch.nn import functional as F
 
 ROI_BOX_HEAD_REGISTRY = Registry("ROI_BOX_HEAD")
 ROI_BOX_HEAD_REGISTRY.__doc__ = """
@@ -31,6 +31,7 @@ class FastRCNNConvFCHead(nn.Module):
         """
         super().__init__()
 
+        # noqa: E221
         # fmt: off
         num_conv   = cfg.MODEL.ROI_BOX_HEAD.NUM_CONV
         conv_dim   = cfg.MODEL.ROI_BOX_HEAD.CONV_DIM

@@ -1,5 +1,7 @@
 # Few-Shot Object Detection (FsDet)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/ucbdrive/few-shot-object-detection.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ucbdrive/few-shot-object-detection/context:python)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 FsDet contains the official few-shot object detection implementation of the ICML 2020 paper
 [Frustratingly Simple Few-Shot Object Detection](https://arxiv.org/abs/2003.06957).
@@ -24,16 +26,22 @@ If you find this repository useful for your publications, please consider citing
 ```
 
 ## Updates
-- (Oct 2020) The code has been upgraded to detectron2 v0.2.1.  If you need the original released code, please checkout the release [v0.1](https://github.com/ucbdrive/few-shot-object-detection/tags) in the tag.  
+- (Oct 2020) The code has been upgraded to detectron2 v0.2.1.  If you need the original released code, please checkout the release [v0.1](https://github.com/ucbdrive/few-shot-object-detection/tags) in the tag.
 
 
 
 ## Table of Contents
-- [Installation](#installation)
-- [Code Structure](#code-structure)
-- [Data Preparation](#data-preparation)
-- [Models](#models)
-- [Getting Started](#getting-started)
+- [Few-Shot Object Detection (FsDet)](#few-shot-object-detection-fsdet)
+  - [Updates](#updates)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+  - [Code Structure](#code-structure)
+  - [Data Preparation](#data-preparation)
+  - [Models](#models)
+  - [Getting Started](#getting-started)
+    - [Inference Demo with Pre-trained Models](#inference-demo-with-pre-trained-models)
+    - [Training & Evaluation in Command Line](#training--evaluation-in-command-line)
+    - [Multiple Runs](#multiple-runs)
 
 
 ## Installation
@@ -67,7 +75,7 @@ Currently, the codebase is compatible with [Detectron2 v0.2.1](https://github.co
 python3 -m pip install detectron2==0.3 -f \
   https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.6/index.html
 ```
-* Install other requirements. 
+* Install other requirements.
 ```angular2html
 python3 -m pip install -r requirements.txt
 ```

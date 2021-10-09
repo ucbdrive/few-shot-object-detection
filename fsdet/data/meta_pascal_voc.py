@@ -1,10 +1,10 @@
-import numpy as np
-from fvcore.common.file_io import PathManager
-
 import os
 import xml.etree.ElementTree as ET
+
+import numpy as np
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import BoxMode
+from fvcore.common.file_io import PathManager
 
 __all__ = ["register_meta_pascal_voc"]
 

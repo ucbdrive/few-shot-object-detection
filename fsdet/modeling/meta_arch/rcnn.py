@@ -1,14 +1,14 @@
-import torch
-from torch import nn
-
-from fsdet.modeling.roi_heads import build_roi_heads
-
 import logging
+
+import torch
 from detectron2.modeling.backbone import build_backbone
 from detectron2.modeling.postprocessing import detector_postprocess
 from detectron2.modeling.proposal_generator import build_proposal_generator
 from detectron2.structures import ImageList
 from detectron2.utils.logger import log_first_n
+from torch import nn
+
+from fsdet.modeling.roi_heads import build_roi_heads
 
 # avoid conflicting with the existing GeneralizedRCNN module in Detectron2
 from .build import META_ARCH_REGISTRY

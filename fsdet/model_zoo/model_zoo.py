@@ -1,11 +1,11 @@
-import torch
-
-from fsdet.modeling import build_model
-
 import os
+
 import pkg_resources
+import torch
 from detectron2.checkpoint import DetectionCheckpointer
 from fsdet.config import get_cfg
+
+from fsdet.modeling import build_model
 
 
 class _ModelZooUrls(object):

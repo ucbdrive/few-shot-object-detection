@@ -1,9 +1,9 @@
 import pickle
-from fvcore.common.checkpoint import Checkpointer
-from fvcore.common.file_io import PathManager
 
 import detectron2.utils.comm as comm
 from detectron2.checkpoint.c2_model_loading import align_and_update_state_dicts
+from fvcore.common.checkpoint import Checkpointer
+from fvcore.common.file_io import PathManager
 
 
 class DetectionCheckpointer(Checkpointer):
@@ -12,12 +12,16 @@ class DetectionCheckpointer(Checkpointer):
     model zoo, and apply conversions for legacy models.
     """
 
-    def __init__(self, model, save_dir="", *, save_to_disk=None, **checkpointables):
+    def __init__(
+        self, model, save_dir="", *, save_to_disk=None, **checkpointables
+    ):
         is_main_process = comm.is_main_process()
         super().__init__(
             model,
             save_dir,
-            save_to_disk=is_main_process if save_to_disk is None else save_to_disk,
+            save_to_disk=is_main_process
+            if save_to_disk is None
+            else save_to_disk,
             **checkpointables,
         )
 
@@ -27,15 +31,25 @@ class DetectionCheckpointer(Checkpointer):
                 data = pickle.load(f, encoding="latin1")
             if "model" in data and "__author__" in data:
                 # file is in Detectron2 model zoo format
-                self.logger.info("Reading a file from '{}'".format(data["__author__"]))
+                self.logger.info(
+                    "Reading a file from '{}'".format(data["__author__"])
+                )
                 return data
             else:
                 # assume file is from Caffe2 / Detectron1 model zoo
                 if "blobs" in data:
                     # Detection models have "blobs", but ImageNet models don't
                     data = data["blobs"]
-                data = {k: v for k, v in data.items() if not k.endswith("_momentum")}
-                return {"model": data, "__author__": "Caffe2", "matching_heuristics": True}
+                data = {
+                    k: v
+                    for k, v in data.items()
+                    if not k.endswith("_momentum")
+                }
+                return {
+                    "model": data,
+                    "__author__": "Caffe2",
+                    "matching_heuristics": True,
+                }
 
         loaded = super()._load_file(filename)  # load native pth checkpoint
         if "model" not in loaded:
