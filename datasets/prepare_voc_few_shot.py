@@ -5,7 +5,7 @@ import random
 import xml.etree.ElementTree as ET
 
 import numpy as np
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 
 VOC_CLASSES = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
                'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',

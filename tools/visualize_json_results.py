@@ -13,7 +13,7 @@ from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import Boxes, BoxMode, Instances
 from detectron2.utils.logger import setup_logger
 from detectron2.utils.visualizer import Visualizer
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 
 
 def create_instances(predictions, image_size):
