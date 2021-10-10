@@ -29,10 +29,6 @@ from detectron2.utils.events import (
     TensorboardXWriter,
 )
 from detectron2.utils.logger import setup_logger
-from fvcore.common.file_io import PathManager
-from fvcore.nn.precise_bn import get_bn_modules
-from torch.nn.parallel import DistributedDataParallel
-
 from fsdet.checkpoint import DetectionCheckpointer
 from fsdet.engine.hooks import EvalHookFsdet
 from fsdet.evaluation import (
@@ -42,6 +38,9 @@ from fsdet.evaluation import (
     verify_results,
 )
 from fsdet.modeling import build_model
+from fvcore.common.file_io import PathManager
+from fvcore.nn.precise_bn import get_bn_modules
+from torch.nn.parallel import DistributedDataParallel
 
 __all__ = [
     "default_argument_parser",
