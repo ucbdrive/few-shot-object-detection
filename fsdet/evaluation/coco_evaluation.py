@@ -8,7 +8,6 @@ import numpy as np
 import os
 import torch
 from collections import OrderedDict
-from fvcore.common.file_io import PathManager
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tabulate import tabulate
@@ -20,6 +19,7 @@ from detectron2.structures import BoxMode
 from detectron2.utils.logger import create_small_table
 
 from fsdet.evaluation.evaluator import DatasetEvaluator
+from fsdet.utils.file_io import PathManager
 
 
 class COCOEvaluator(DatasetEvaluator):
