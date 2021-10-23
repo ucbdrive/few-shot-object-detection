@@ -1,3 +1,5 @@
+import fsdet.data.builtin  # register datasets
+
 from .defaults import (
     DefaultPredictor,
     DefaultTrainer,
