@@ -4,12 +4,12 @@ import json
 import logging
 import os
 from collections import OrderedDict
-import torch
-from fvcore.common.file_io import PathManager
 
 import detectron2.utils.comm as comm
+import torch
 from detectron2.data import MetadataCatalog
 from detectron2.utils.logger import create_small_table
+from fvcore.common.file_io import PathManager
 
 from fsdet.evaluation.coco_evaluation import instances_to_coco_json
 from fsdet.evaluation.evaluator import DatasetEvaluator
@@ -65,7 +65,8 @@ class LVISEvaluator(DatasetEvaluator):
             if "instances" in output:
                 instances = output["instances"].to(self._cpu_device)
                 prediction["instances"] = instances_to_coco_json(
-                    instances, input["image_id"])
+                    instances, input["image_id"]
+                )
             self._predictions.append(prediction)
 
     def evaluate(self):
@@ -79,12 +80,15 @@ class LVISEvaluator(DatasetEvaluator):
 
         if len(self._predictions) == 0:
             self._logger.warning(
-                "[LVISEvaluator] Did not receive valid predictions.")
+                "[LVISEvaluator] Did not receive valid predictions."
+            )
             return {}
 
         if self._output_dir:
             PathManager.mkdirs(self._output_dir)
-            file_path = os.path.join(self._output_dir, "instances_predictions.pth")
+            file_path = os.path.join(
+                self._output_dir, "instances_predictions.pth"
+            )
             with PathManager.open(file_path, "wb") as f:
                 torch.save(self._predictions, f)
 
@@ -101,7 +105,8 @@ class LVISEvaluator(DatasetEvaluator):
         """
         self._logger.info("Preparing results in the LVIS format ...")
         self._lvis_results = list(
-            itertools.chain(*[x["instances"] for x in self._predictions]))
+            itertools.chain(*[x["instances"] for x in self._predictions])
+        )
 
         # unmap the category ids for LVIS
         if hasattr(self._metadata, "class_mapping"):
@@ -110,7 +115,9 @@ class LVISEvaluator(DatasetEvaluator):
                 v: k for k, v in self._metadata.class_mapping.items()
             }
             for result in self._lvis_results:
-                result["category_id"] = reverse_id_mapping[result["category_id"]] + 1
+                result["category_id"] = (
+                    reverse_id_mapping[result["category_id"]] + 1
+                )
         else:
             # from 0-indexed to 1-indexed
             for result in self._lvis_results:
@@ -118,7 +125,8 @@ class LVISEvaluator(DatasetEvaluator):
 
         if self._output_dir:
             file_path = os.path.join(
-                self._output_dir, "lvis_instances_results.json")
+                self._output_dir, "lvis_instances_results.json"
+            )
             self._logger.info("Saving results to {}".format(file_path))
             with PathManager.open(file_path, "w") as f:
                 f.write(json.dumps(self._lvis_results))
@@ -130,14 +138,17 @@ class LVISEvaluator(DatasetEvaluator):
 
         self._logger.info("Evaluating predictions ...")
         res = _evaluate_predictions_on_lvis(
-            self._lvis_api, self._lvis_results, "bbox",
+            self._lvis_api,
+            self._lvis_results,
+            "bbox",
             class_names=self._metadata.get("thing_classes"),
         )
         self._results["bbox"] = res
 
 
 def _evaluate_predictions_on_lvis(
-    lvis_gt, lvis_results, iou_type, class_names=None):
+    lvis_gt, lvis_results, iou_type, class_names=None
+):
     """
     Args:
         iou_type (str):
@@ -166,7 +177,7 @@ def _evaluate_predictions_on_lvis(
     results = lvis_eval.get_results()
     results = {metric: float(results[metric] * 100) for metric in metrics}
     logger.info(
-        "Evaluation results for {}: \n".format(iou_type) + \
-            create_small_table(results)
+        "Evaluation results for {}: \n".format(iou_type)
+        + create_small_table(results)
     )
     return results

@@ -1,6 +1,6 @@
-from fvcore.common.config import CfgNode as _CfgNode
-
 import logging
+
+from fvcore.common.config import CfgNode as _CfgNode
 
 
 class CfgNode(_CfgNode):

@@ -7,23 +7,22 @@ We hard-code metadata for common datasets. This will enable:
 We hard-code some paths to the dataset that's assumed to
 exist in "./datasets/".
 
-Here we only register the few-shot datasets and complete COCO, PascalVOC and 
-LVIS have been handled by the builtin datasets in detectron2. 
+Here we only register the few-shot datasets and complete COCO, PascalVOC and
+LVIS have been handled by the builtin datasets in detectron2.
 """
 
 import os
-from detectron2.data import DatasetCatalog, MetadataCatalog
+
+from detectron2.data import MetadataCatalog
 from detectron2.data.datasets.lvis import (
-    get_lvis_instances_meta,
     register_lvis_instances,
 )
-from detectron2.data.datasets.pascal_voc import register_pascal_voc
-from detectron2.data.datasets.register_coco import register_coco_instances
 
 from .builtin_meta import _get_builtin_metadata
 from .meta_coco import register_meta_coco
 from .meta_lvis import register_meta_lvis
 from .meta_pascal_voc import register_meta_pascal_voc
+
 
 # ==== Predefined datasets and splits for COCO ==========
 

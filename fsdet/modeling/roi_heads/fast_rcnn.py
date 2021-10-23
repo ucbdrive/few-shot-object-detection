@@ -1,15 +1,15 @@
 """Implement the CosineSimOutputLayers and  FastRCNNOutputLayers with FC layers."""
+import logging
+
 import numpy as np
 import torch
-from fvcore.nn import smooth_l1_loss
-from torch import nn
-from torch.nn import functional as F
-
-import logging
 from detectron2.layers import batched_nms, cat
 from detectron2.structures import Boxes, Instances
 from detectron2.utils.events import get_event_storage
 from detectron2.utils.registry import Registry
+from fvcore.nn import smooth_l1_loss
+from torch import nn
+from torch.nn import functional as F
 
 ROI_HEADS_OUTPUT_REGISTRY = Registry("ROI_HEADS_OUTPUT")
 ROI_HEADS_OUTPUT_REGISTRY.__doc__ = """

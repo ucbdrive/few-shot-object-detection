@@ -6,39 +6,40 @@ import random
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seeds", type=int, nargs="+", default=[1, 10],
-                        help="Range of seeds")
+    parser.add_argument(
+        "--seeds", type=int, nargs="+", default=[1, 10], help="Range of seeds"
+    )
     args = parser.parse_args()
     return args
 
 
 def generate_seeds(args):
-    data_path = 'datasets/cocosplit/datasplit/trainvalno5k.json'
+    data_path = "datasets/cocosplit/datasplit/trainvalno5k.json"
     data = json.load(open(data_path))
 
     new_all_cats = []
-    for cat in data['categories']:
+    for cat in data["categories"]:
         new_all_cats.append(cat)
 
     id2img = {}
-    for i in data['images']:
-        id2img[i['id']] = i
+    for i in data["images"]:
+        id2img[i["id"]] = i
 
     anno = {i: [] for i in ID2CLASS.keys()}
-    for a in data['annotations']:
-        if a['iscrowd'] == 1:
+    for a in data["annotations"]:
+        if a["iscrowd"] == 1:
             continue
-        anno[a['category_id']].append(a)
+        anno[a["category_id"]].append(a)
 
     for i in range(args.seeds[0], args.seeds[1]):
         random.seed(i)
         for c in ID2CLASS.keys():
             img_ids = {}
             for a in anno[c]:
-                if a['image_id'] in img_ids:
-                    img_ids[a['image_id']].append(a)
+                if a["image_id"] in img_ids:
+                    img_ids[a["image_id"]].append(a)
                 else:
-                    img_ids[a['image_id']] = [a]
+                    img_ids[a["image_id"]] = [a]
 
             sample_shots = []
             sample_imgs = []
@@ -48,7 +49,7 @@ def generate_seeds(args):
                     for img in imgs:
                         skip = False
                         for s in sample_shots:
-                            if img == s['image_id']:
+                            if img == s["image_id"]:
                                 skip = True
                                 break
                         if skip:
@@ -62,27 +63,28 @@ def generate_seeds(args):
                     if len(sample_shots) == shots:
                         break
                 new_data = {
-                    'info': data['info'],
-                    'licenses': data['licenses'],
-                    'images': sample_imgs,
-                    'annotations': sample_shots,
+                    "info": data["info"],
+                    "licenses": data["licenses"],
+                    "images": sample_imgs,
+                    "annotations": sample_shots,
                 }
-                save_path = get_save_path_seeds(data_path, ID2CLASS[c], shots, i)
-                new_data['categories'] = new_all_cats
-                with open(save_path, 'w') as f:
+                save_path = get_save_path_seeds(
+                    data_path, ID2CLASS[c], shots, i
+                )
+                new_data["categories"] = new_all_cats
+                with open(save_path, "w") as f:
                     json.dump(new_data, f)
 
 
 def get_save_path_seeds(path, cls, shots, seed):
-    s = path.split('/')
-    prefix = 'full_box_{}shot_{}_trainval'.format(shots, cls)
-    save_dir = os.path.join('datasets', 'cocosplit', 'seed' + str(seed))
+    prefix = "full_box_{}shot_{}_trainval".format(shots, cls)
+    save_dir = os.path.join("datasets", "cocosplit", "seed" + str(seed))
     os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, prefix + '.json')
+    save_path = os.path.join(save_dir, prefix + ".json")
     return save_path
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ID2CLASS = {
         1: "person",
         2: "bicycle",

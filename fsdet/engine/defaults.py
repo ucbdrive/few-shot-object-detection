@@ -10,27 +10,15 @@ import argparse
 import logging
 import os
 from collections import OrderedDict
-import torch
-from fvcore.common.file_io import PathManager
-from fvcore.nn.precise_bn import get_bn_modules
-from torch.nn.parallel import DistributedDataParallel
 
 import detectron2.data.transforms as T
-from fsdet.checkpoint import DetectionCheckpointer
-from fsdet.engine.hooks import EvalHookFsdet
-from fsdet.evaluation import (
-    DatasetEvaluator,
-    inference_on_dataset,
-    print_csv_format,
-    verify_results,
-)
-from fsdet.modeling import build_model
+import torch
 from detectron2.data import (
     MetadataCatalog,
     build_detection_test_loader,
     build_detection_train_loader,
 )
-from detectron2.engine import hooks, SimpleTrainer
+from detectron2.engine import SimpleTrainer, hooks
 from detectron2.solver import build_lr_scheduler, build_optimizer
 from detectron2.utils import comm
 from detectron2.utils.collect_env import collect_env_info
@@ -40,11 +28,20 @@ from detectron2.utils.events import (
     JSONWriter,
     TensorboardXWriter,
 )
-
 from detectron2.utils.logger import setup_logger
+from fvcore.common.file_io import PathManager
+from fvcore.nn.precise_bn import get_bn_modules
+from torch.nn.parallel import DistributedDataParallel
 
-
-from fsdet.data import *
+from fsdet.checkpoint import DetectionCheckpointer
+from fsdet.engine.hooks import EvalHookFsdet
+from fsdet.evaluation import (
+    DatasetEvaluator,
+    inference_on_dataset,
+    print_csv_format,
+    verify_results,
+)
+from fsdet.modeling import build_model
 
 __all__ = [
     "default_argument_parser",
@@ -397,8 +394,11 @@ class DefaultTrainer(SimpleTrainer):
 
         # Do evaluation after checkpointer, because then if it fails,
         # we can use the saved checkpoint to debug.
-        ret.append(EvalHookFsdet(
-            cfg.TEST.EVAL_PERIOD, test_and_save_results, self.cfg))
+        ret.append(
+            EvalHookFsdet(
+                cfg.TEST.EVAL_PERIOD, test_and_save_results, self.cfg
+            )
+        )
 
         if comm.is_main_process():
             # run writers in the end, so that evaluation metrics are written

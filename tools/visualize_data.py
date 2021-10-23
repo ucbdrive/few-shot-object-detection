@@ -1,15 +1,19 @@
-import numpy as np
-import cv2
-from PIL import Image
-
 import argparse
 import os
+from itertools import chain
+
+import cv2
+import numpy as np
 from detectron2.config import get_cfg
-from detectron2.data import DatasetCatalog, MetadataCatalog, build_detection_train_loader
+from detectron2.data import (
+    DatasetCatalog,
+    MetadataCatalog,
+    build_detection_train_loader,
+)
 from detectron2.data import detection_utils as utils
 from detectron2.utils.logger import setup_logger
 from detectron2.utils.visualizer import Visualizer
-from itertools import chain
+from PIL import Image
 
 
 def setup(args):

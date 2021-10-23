@@ -14,23 +14,24 @@ this file as an example of how to use the library.
 You may want to write your own script with your datasets and other customizations.
 """
 
-import numpy as np
-import torch
-
-from fsdet.config import get_cfg, set_global_cfg
-from fsdet.engine import DefaultTrainer, default_argument_parser, default_setup
-
-import detectron2.utils.comm as comm
 import json
-import logging
 import os
 import time
-from collections import OrderedDict
+
+import detectron2.utils.comm as comm
+import numpy as np
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.data import MetadataCatalog
-from detectron2.engine import hooks, launch
+from detectron2.engine import launch
+from fsdet.config import get_cfg, set_global_cfg
+from fsdet.engine import DefaultTrainer, default_argument_parser, default_setup
 from fsdet.evaluation import (
-    COCOEvaluator, DatasetEvaluators, LVISEvaluator, PascalVOCDetectionEvaluator, verify_results)
+    COCOEvaluator,
+    DatasetEvaluators,
+    LVISEvaluator,
+    PascalVOCDetectionEvaluator,
+    verify_results,
+)
 
 
 class Trainer(DefaultTrainer):
@@ -173,7 +174,7 @@ def main(args):
                     # skip evaluation of checkpoints after end iteration
                     break
             tester.test(ckpt)
-        return best_res
+        return tester.best_res
     elif args.eval_during_train:
         tester = Tester(cfg)
         saved_checkpoint = None
