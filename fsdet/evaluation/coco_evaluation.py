@@ -15,7 +15,7 @@ from detectron2.data.datasets.coco import convert_to_coco_json
 from detectron2.structures import BoxMode
 from detectron2.utils.logger import create_small_table
 from fsdet.evaluation.evaluator import DatasetEvaluator
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tabulate import tabulate

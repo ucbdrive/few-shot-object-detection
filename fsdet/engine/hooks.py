@@ -4,7 +4,7 @@ import os
 import detectron2.utils.comm as comm
 from detectron2.engine.train_loop import HookBase
 from detectron2.evaluation.testing import flatten_results_dict
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 
 __all__ = ["EvalHookFsdet"]
 

@@ -38,7 +38,7 @@ from fsdet.evaluation import (
     verify_results,
 )
 from fsdet.modeling import build_model
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 from fvcore.nn.precise_bn import get_bn_modules
 from torch.nn.parallel import DistributedDataParallel
 

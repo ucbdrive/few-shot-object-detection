@@ -4,7 +4,7 @@ import os
 from detectron2.config import global_cfg
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import BoxMode
-from fvcore.common.file_io import PathManager
+from fsdet.utils.file_io import PathManager
 from fvcore.common.timer import Timer
 
 from .lvis_v0_5_categories import LVIS_CATEGORIES_NOVEL_IDS

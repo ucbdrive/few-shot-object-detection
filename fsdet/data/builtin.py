@@ -14,15 +14,12 @@ LVIS have been handled by the builtin datasets in detectron2.
 import os
 
 from detectron2.data import MetadataCatalog
-from detectron2.data.datasets.lvis import (
-    register_lvis_instances,
-)
+from detectron2.data.datasets.lvis import register_lvis_instances
 
 from .builtin_meta import _get_builtin_metadata
 from .meta_coco import register_meta_coco
 from .meta_lvis import register_meta_lvis
 from .meta_pascal_voc import register_meta_pascal_voc
-
 
 # ==== Predefined datasets and splits for COCO ==========
 
