@@ -69,7 +69,7 @@ conda activate fsdet
 ```angular2html
 pip install torch==1.6.0 torchvision==0.7.0
 ```
-Currently, the codebase is compatible with [Detectron2 v0.2.1](https://github.com/facebookresearch/detectron2/releases/tag/v0.2.1) and [Detectron2 v0.3](https://github.com/facebookresearch/detectron2/releases/tag/v0.3). Tags correspond to the exact version of Detectron2 that is supported. To checkout the right tag (example for Detectron2 v0.3):
+Currently, the codebase is compatible with [Detectron2 v0.2.1](https://github.com/facebookresearch/detectron2/releases/tag/v0.2.1), [Detectron2 v0.3](https://github.com/facebookresearch/detectron2/releases/tag/v0.3), and [Detectron2 v0.4](https://github.com/facebookresearch/detectron2/releases/tag/v0.4). Tags correspond to the exact version of Detectron2 that is supported. To checkout the right tag (example for Detectron2 v0.3):
 ```bash
 git checkout v0.3
 ```
