@@ -11,5 +11,3 @@ imagesize
 tensorboard
 opencv-python
 lvis
-# Pin fvcore to ensure the right PathManager is used
-fvcore==0.1.2.post20201213
