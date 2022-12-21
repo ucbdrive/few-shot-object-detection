@@ -9,6 +9,8 @@ exist in "./datasets/".
 
 Here we only register the few-shot datasets and complete COCO, PascalVOC and 
 LVIS have been handled by the builtin datasets in detectron2. 
+
+BAW: added scannet support
 """
 
 import os
@@ -24,6 +26,11 @@ from .builtin_meta import _get_builtin_metadata
 from .meta_coco import register_meta_coco
 from .meta_lvis import register_meta_lvis
 from .meta_pascal_voc import register_meta_pascal_voc
+from .meta_scannet import register_meta_scannet
+from .meta_coco_sn import register_meta_coco_sn
+
+#from .custom_dataset import register_all_custom
+
 
 # ==== Predefined datasets and splits for COCO ==========
 
@@ -72,7 +79,7 @@ _PREDEFINED_SPLITS_COCO["coco"] = {
 }
 
 
-def register_all_coco(root="datasets"):
+def register_all_coco(root="datasets",useSSAnnos=False):
     # for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_COCO.items():
     #     for key, (image_root, json_file) in splits_per_dataset.items():
     #         # Assume pre-defined datasets live in `./datasets`.
@@ -89,12 +96,12 @@ def register_all_coco(root="datasets"):
     METASPLITS = [
         (
             "coco_trainval_all",
-            "coco/trainval2014",
+            "coco/train2014",
             "cocosplit/datasplit/trainvalno5k.json",
         ),
         (
             "coco_trainval_base",
-            "coco/trainval2014",
+            "coco/train2014",
             "cocosplit/datasplit/trainvalno5k.json",
         ),
         ("coco_test_all", "coco/val2014", "cocosplit/datasplit/5k.json"),
@@ -108,7 +115,7 @@ def register_all_coco(root="datasets"):
             for seed in range(10):
                 seed = "" if seed == 0 else "_seed{}".format(seed)
                 name = "coco_trainval_{}_{}shot{}".format(prefix, shot, seed)
-                METASPLITS.append((name, "coco/trainval2014", ""))
+                METASPLITS.append((name, "coco/train2014", ""))
 
     for name, imgdir, annofile in METASPLITS:
         register_meta_coco(
@@ -116,6 +123,7 @@ def register_all_coco(root="datasets"):
             _get_builtin_metadata("coco_fewshot"),
             os.path.join(root, imgdir),
             os.path.join(root, annofile),
+            useSSAnnos
         )
 
 
@@ -266,8 +274,149 @@ def register_all_pascal_voc(root="datasets"):
         )
         MetadataCatalog.get(name).evaluator_type = "pascal_voc"
 
+# ==== Predefined datasets and splits for Scannet ==========
+
+_PREDEFINED_SPLITS_SCANNET = {}
+_PREDEFINED_SPLITS_SCANNET["scannet"] = {
+    "scannet_train": (
+        "scannet/solov2/train",
+        "scannet/solov2/annotations/train-tol5-scannet-v2_reduced_10_allClasses.json",
+    ),
+    "scannet_val": (
+        "scannet/solov2/val",
+        "scannet/solov2/annotations/train-tol5-scannet-v2_reduced_10_allClasses.json",
+    ),
+    "scannet_test": (
+        "scannet/solov2/test",
+        "scannet/solov2/annotations/train-tol5-scannet-v2_reduced_10_allClasses.json",
+    ),
+}
+
+# ==== Predefined datasets and splits for COCO+SCANNET ==========
+
+_PREDEFINED_SPLITS_COCO_SN = {}
+_PREDEFINED_SPLITS_COCO_SN["COCO_SN"] = {
+    "coco_sn_train": (
+        "cocosn",
+        "cocosn/annotations/train-merged.json",
+    ),
+    "coco_sn_val": (
+        "cocosn",
+        "cocosn/annotations/val-merged.json",
+    ),
+    "coco_sn_test": (
+        "cocosn",
+        "cocosn/annotations/test-ed.json",
+    ),
+}
+
+
+def register_all_scannet(root="datasets"):
+    # for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_SCANNET.items():
+    #     for key, (image_root, json_file) in splits_per_dataset.items():
+    #         # Assume pre-defined datasets live in `./datasets`.
+    #         register_coco_instances(
+    #             key,
+    #             _get_builtin_metadata(dataset_name),
+    #             os.path.join(root, json_file)
+    #             if "://" not in json_file
+    #             else json_file,
+    #             os.path.join(root, image_root),
+    #         )
+
+    # register meta datasets
+    METASPLITS = [
+        (
+            "scannet_trainval_all",
+            "scannet/solov2/train",
+            "scannet/solov2/annotations/train-tol5-scannet-v2_reduced_10_allClasses.json",
+        ),
+        (
+            "scannet_trainval_base",
+            "scannet/solov2/train",
+            "scannet/solov2/annotations/train-tol5-scannet-v2_reduced_10_allClasses.json",
+        ),
+        ("scannet_test_all", "scannet/solov2/val", "scannet/solov2/annotations/val-tol5-scannet-v2_reduced_10_allClasses.json"),
+        ("scannet_test_base", "scannet/solov2/val", "scannet/solov2/annotations/val-tol5-scannet-v2_reduced_10_allClasses.json"),
+        ("scannet_test_novel", "scannet/solov2/val", "scannet/solov2/annotations/val-tol5-scannet-v2_reduced_10_allClasses.json"),
+    ]
+
+    # register small meta datasets for fine-tuning stage
+    for prefix in ["all", "novel"]:
+        for shot in [1, 2, 3, 5, 10, 30]:
+            for seed in range(10):
+                seed = "" if seed == 0 else "_seed{}".format(seed)
+                name = "scannet_trainval_{}_{}shot{}".format(prefix, shot, seed)
+                METASPLITS.append((name, "scannet/solov2/train", ""))
+
+    for name, imgdir, annofile in METASPLITS:
+        register_meta_scannet(
+            name,
+            _get_builtin_metadata("scannet_fewshot"),
+            os.path.join(root, imgdir),
+            os.path.join(root, annofile),
+        )
+
+def register_all_coco_sn(root="datasets"):
+    # for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_COCO_SN.items():
+    #     for key, (image_root, json_file) in splits_per_dataset.items():
+    #         # Assume pre-defined datasets live in `./datasets`.
+    #         register_coco_instances(
+    #             key,
+    #             _get_builtin_metadata(dataset_name),
+    #             os.path.join(root, json_file)
+    #             if "://" not in json_file
+    #             else json_file,
+    #             os.path.join(root, image_root),
+    #         )
+
+    # register meta datasets
+    METASPLITS = [
+        (
+            "coco_sn_trainval_all",
+            "",
+            "cocosn/annotations/train-merged.json",
+        ),
+        (
+            "coco_sn_trainval_base",
+            "",
+            "cocosn/annotations/train-merged.json",
+        ),
+        ("coco_sn_test_all", "", "cocosn/annotations/val-merged.json"),
+        ("coco_sn_test_base", "", "cocosn/annotations/val-merged.json"),
+        ("coco_sn_test_novel", "", "cocosn/annotations/val-merged.json"),
+    ]
+
+    # register small meta datasets for fine-tuning stage
+    for prefix in ["all", "novel"]:
+        for shot in [1, 2, 3, 5, 10, 30]:
+            for seed in range(10):
+                seed = "" if seed == 0 else "_seed{}".format(seed)
+                name = "coco_sn_trainval_{}_{}shot{}".format(prefix, shot, seed)
+                METASPLITS.append((name, "", ""))
+
+    for name, imgdir, annofile in METASPLITS:
+        register_meta_coco_sn(
+            name,
+            _get_builtin_metadata("coco_sn_fewshot"),
+            os.path.join(root, imgdir),
+            os.path.join(root, annofile),
+        )
+
+# support for inserting semi-supervised annotations on the other part of the dataset
+# NOTE: currently only experimentally supported for COCO
+useSSAnnos = False
+import sys
+for i in range(len(sys.argv)):
+    if sys.argv[i]=="--ss-annos":
+        useSSAnnos = True
+
 
 # Register them all under "./datasets"
-register_all_coco()
+register_all_coco(useSSAnnos=useSSAnnos)
 register_all_lvis()
 register_all_pascal_voc()
+register_all_scannet()
+register_all_coco_sn()
+
+#register_all_custom()

@@ -1,6 +1,7 @@
 """Implement the CosineSimOutputLayers and  FastRCNNOutputLayers with FC layers."""
 import numpy as np
 import torch
+import math
 from fvcore.nn import smooth_l1_loss
 from torch import nn
 from torch.nn import functional as F
@@ -224,10 +225,30 @@ class FastRCNNOutputs(object):
         Returns:
             scalar Tensor
         """
+        
         self._log_accuracy()
-        return F.cross_entropy(
-            self.pred_class_logits, self.gt_classes, reduction="mean"
+        
+        use_ovss = False
+        
+        reductionmethod = "mean"
+        if (use_ovss):
+            reductionmethod = "none"
+        
+        smceloss = F.cross_entropy(
+            self.pred_class_logits, self.gt_classes, reduction=reductionmethod
         )
+          
+        if (use_ovss):
+            device = self.gt_boxes.device
+
+            ovss_w = torch.tensor(self.get_ovss_weights(self.gt_boxes.tensor,self.proposals),device=device)
+          
+            smceloss.register_hook(lambda grad, weights=ovss_w: ovss_grad(grad,weights) )            
+            
+            smceloss = smceloss.mean()    
+            
+        return smceloss  
+        
 
     def smooth_l1_loss(self):
         """
@@ -267,12 +288,31 @@ class FastRCNNOutputs(object):
                 box_dim, device=device
             )
 
+
+        use_ovss = False
+        
+        reductionmethod = "sum"
+        if (use_ovss):
+            reductionmethod = "none"
+
         loss_box_reg = smooth_l1_loss(
             self.pred_proposal_deltas[fg_inds[:, None], gt_class_cols],
             gt_proposal_deltas[fg_inds],
             self.smooth_l1_beta,
-            reduction="sum",
+            reduction=reductionmethod, 
         )
+        
+        if (use_ovss):
+
+            ovss_w = torch.tensor(self.get_ovss_weights(self.gt_boxes.tensor[fg_inds],self.proposals[fg_inds]),device=device)
+          
+            loss_box_reg.register_hook(lambda grad, weights=ovss_w: ovss_grad(grad,weights) )            
+            
+            loss_box_reg = loss_box_reg.sum()
+
+           
+
+        
         # The loss is normalized using the total number of regions (R), not the number
         # of foreground regions even though the box regression loss is only defined on
         # foreground regions. Why? Because doing so gives equal training influence to
@@ -295,9 +335,12 @@ class FastRCNNOutputs(object):
         Returns:
             A dict of losses (scalar tensors) containing keys "loss_cls" and "loss_box_reg".
         """
+        l1loss = self.smooth_l1_loss()
+        #print(l1loss)
+    
         return {
             "loss_cls": self.softmax_cross_entropy_loss(),
-            "loss_box_reg": self.smooth_l1_loss(),
+            "loss_box_reg": l1loss,
         }
 
     def predict_boxes(self):
@@ -354,6 +397,25 @@ class FastRCNNOutputs(object):
         )
 
 
+    def get_ovss_weights(self,gt,pred):
+        a = 0.25
+        b = 50
+        c = 20
+    
+        w = np.zeros((gt.shape[0],))
+    
+        for i in range(gt.shape[0]):
+    
+            assert(pred[i].tensor.shape[0]==1)
+    
+            iou = get_iou(gt[i], pred[i].tensor[0])
+            
+            w[i] = a + (1-a) * math.exp(-b * math.exp(-c*iou))
+            
+           
+        return w
+            
+
 @ROI_HEADS_OUTPUT_REGISTRY.register()
 class FastRCNNOutputLayers(nn.Module):
     """
@@ -397,6 +459,8 @@ class FastRCNNOutputLayers(nn.Module):
         scores = self.cls_score(x)
         proposal_deltas = self.bbox_pred(x)
         return scores, proposal_deltas
+        
+
 
 
 @ROI_HEADS_OUTPUT_REGISTRY.register()
@@ -462,3 +526,48 @@ class CosineSimOutputLayers(nn.Module):
         scores = self.scale * cos_dist
         proposal_deltas = self.bbox_pred(x)
         return scores, proposal_deltas
+      
+        
+def ovss_grad(grad,weights):
+
+    weights = weights.float()
+
+    if len(grad.shape)==1:
+        grad = grad * weights
+        return grad
+
+    for i in range(len(weights)):
+        for j in range(grad.shape[1]):
+            grad[i,j] = grad[i,j]*weights[i]
+
+    return grad
+    
+def get_iou(bb1, bb2):
+    # format of each bb: x1,y1,x2,y2
+
+    # determine the coordinates of the intersection rectangle
+    x_left = max(bb1[0], bb2[0])
+    y_top = max(bb1[1], bb2[1])
+    x_right = min(bb1[2], bb2[2])
+    y_bottom = min(bb1[3], bb2[3])
+
+    if x_right < x_left or y_bottom < y_top:
+        return 0.0
+
+    # The intersection of two axis-aligned bounding boxes is always an
+    # axis-aligned bounding box
+    intersection_area = (x_right - x_left) * (y_bottom - y_top)
+
+    # compute the area of both AABBs
+    bb1_area = (bb1[2]-bb1[0]) * (bb1[3]-bb1[1])
+    bb2_area = (bb2[2]-bb2[0]) * (bb2[3]-bb2[1])
+
+    # compute the intersection over union by taking the intersection
+    # area and dividing it by the sum of prediction + ground-truth
+    # areas - the interesection area
+    iou = intersection_area / float(bb1_area + bb2_area - intersection_area)
+    assert iou >= 0.0
+    assert iou <= 1.0
+    return iou
+
+

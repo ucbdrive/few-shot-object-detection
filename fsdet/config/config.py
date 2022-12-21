@@ -25,6 +25,7 @@ class CfgNode(_CfgNode):
 
         # defaults.py needs to import CfgNode
         from .defaults import _CC as _C
+        
 
         latest_ver = _C.VERSION
         assert (
@@ -62,6 +63,7 @@ class CfgNode(_CfgNode):
             new_config = upgrade_config(old_self)
             self.clear()
             self.update(new_config)
+           
 
 
 global_cfg = CfgNode()
@@ -75,8 +77,11 @@ def get_cfg() -> CfgNode:
     """
     from .defaults import _C
 
-    return _C.clone()
+    #print("get cfg")
+    #print(_C)
 
+    return _C.clone()
+    
 
 def set_global_cfg(cfg: CfgNode) -> None:
     """

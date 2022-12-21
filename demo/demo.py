@@ -6,6 +6,9 @@ import glob
 import multiprocessing as mp
 import os
 import time
+import json
+import sys
+import numpy as np
 
 from demo.predictor import VisualizationDemo
 from detectron2.data.detection_utils import read_image
@@ -54,6 +57,11 @@ def get_parser():
         help="A file or directory to save output visualizations. "
         "If not given, will show output in an OpenCV window.",
     )
+    parser.add_argument(
+        "--json",
+        help="JSON output file. "
+    )    
+    
 
     parser.add_argument(
         "--confidence-threshold",
@@ -75,7 +83,9 @@ def get_parser():
     return parser
 
 
-if __name__ == "__main__":
+def main(myargs):
+    sys.argv = ["demo.py"]+myargs
+
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
     setup_logger(name="fvcore")
@@ -101,6 +111,7 @@ if __name__ == "__main__":
             img = read_image(path, format="BGR")
             start_time = time.time()
             predictions, visualized_output = demo.run_on_image(img)
+                        
             logger.info(
                 "{}: {} in {:.2f}s".format(
                     path,
@@ -132,6 +143,35 @@ if __name__ == "__main__":
                 )
                 if cv2.waitKey(0) == 27:
                     break  # esc to quit
+                    
+            if args.json:
+                annot = {}
+                annot["annotations"] = []
+                   
+                pred = predictions["instances"]
+                   
+                for i in range(len(pred)):
+                
+                    annoI = {}
+                    annoI["id"] = time.time()
+                    annoI["image_id"] = -1
+                    annoI["iscrowd"] = 0
+                    annoI["bbox"] = list(np.array(pred.get('pred_boxes').tensor[i].cpu()).astype(np.float))
+                    annoI["category_id"] = pred.get('pred_classes')[i].item()+1
+                    annoI["score"] = pred.get('scores')[i].item()
+                    
+                
+ #               'instances': Instances(num_instances=1, image_height=427, image_width=640, fields=[pred_boxes: Boxes(tensor([[168.7178, 132.6446, 418.1703, 315.9247]], device='cuda:0')), scores: tensor([0.2292], device='cuda:0'), pred_classes: tensor([21], device='cuda:0')])}
+               
+                    annot["annotations"].append(annoI)
+                   
+
+                
+                with open(args.json,'w') as outfile:
+                    json.dump(annot,outfile)
+                    
+ #                   "annotations": [{"segmentation": [[90.0, 205.46, 169.46, 198.76, 193.39, 190.14, 146.48, 170.99, 172.33, 166.2, 248.92, 180.57, 299.67, 171.95, 372.43, 184.4, 361.9, 201.63, 332.22, 204.5, 332.22, 208.33, 431.79, 235.14, 508.38, 227.48, 539.02, 193.01, 561.04, 183.44, 588.8, 193.97, 610.82, 235.14, 605.08, 262.9, 599.33, 282.05, 580.18, 292.58, 569.65, 294.5, 580.18, 302.16, 591.67, 309.81, 582.1, 320.35, 568.7, 315.56, 561.99, 303.11, 554.33, 297.37, 305.41, 280.13, 204.88, 267.69, 204.88, 294.5, 220.2, 304.07, 215.41, 316.52, 202.01, 319.39, 166.59, 322.26, 157.01, 314.6, 157.01, 303.11, 169.46, 296.41, 184.78, 272.48, 131.16, 264.82, 104.36, 235.14, 97.65, 224.61, 81.38, 212.16]], "area": 43807.8147, "iscrowd": 0, "image_id": 377672, "bbox": [81.38, 166.2, 529.44, 156.06], "category_id": 5, "id": 159123}],
+                    
     elif args.webcam:
         assert args.input is None, "Cannot have both --input and --webcam!"
         cam = cv2.VideoCapture(0)
@@ -179,3 +219,8 @@ if __name__ == "__main__":
             output_file.release()
         else:
             cv2.destroyAllWindows()
+            
+            
+if __name__ == "__main__":
+    main(sys.argv[1:])
+    

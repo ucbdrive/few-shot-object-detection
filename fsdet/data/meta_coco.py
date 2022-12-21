@@ -16,7 +16,7 @@ This file contains functions to parse COCO-format annotations into dicts in "Det
 __all__ = ["register_meta_coco"]
 
 
-def load_coco_json(json_file, image_root, metadata, dataset_name):
+def load_coco_json(json_file, image_root, metadata, dataset_name, useSSAnnos=False):
     """
     Load a json file with COCO's instances annotation format.
     Currently supports instance detection.
@@ -34,6 +34,8 @@ def load_coco_json(json_file, image_root, metadata, dataset_name):
         1. This function does not read the image files.
            The results do not have the "image" field.
     """
+    
+    
     is_shots = "shot" in dataset_name
     if is_shots:
         fileids = {}
@@ -48,6 +50,7 @@ def load_coco_json(json_file, image_root, metadata, dataset_name):
             json_file = os.path.join(
                 split_dir, "full_box_{}shot_{}_trainval.json".format(shot, cls)
             )
+            
             json_file = PathManager.get_local_path(json_file)
             with contextlib.redirect_stdout(io.StringIO()):
                 coco_api = COCO(json_file)
@@ -55,6 +58,22 @@ def load_coco_json(json_file, image_root, metadata, dataset_name):
             imgs = coco_api.loadImgs(img_ids)
             anns = [coco_api.imgToAnns[img_id] for img_id in img_ids]
             fileids[idx] = list(zip(imgs, anns))
+        if useSSAnnos:
+
+            for idx, cls in enumerate(metadata["thing_classes"]):
+                json_file = os.path.join(
+                    split_dir, "full_box_{}shot_{}_ss_trainval.json".format(shot, cls)
+                )       
+            
+                json_file = PathManager.get_local_path(json_file)
+                with contextlib.redirect_stdout(io.StringIO()):
+                    coco_api = COCO(json_file)
+                img_ids = sorted(list(coco_api.imgs.keys()))
+                imgs = coco_api.loadImgs(img_ids)
+                anns = [coco_api.imgToAnns[img_id] for img_id in img_ids]
+                fileids[idx].extend( list(zip(imgs, anns))  ) 
+
+
     else:
         json_file = PathManager.get_local_path(json_file)
         with contextlib.redirect_stdout(io.StringIO()):
@@ -78,6 +97,8 @@ def load_coco_json(json_file, image_root, metadata, dataset_name):
                     record["file_name"] = os.path.join(
                         image_root, img_dict["file_name"]
                     )
+                   
+                    
                     record["height"] = img_dict["height"]
                     record["width"] = img_dict["width"]
                     image_id = record["image_id"] = img_dict["id"]
@@ -91,9 +112,15 @@ def load_coco_json(json_file, image_root, metadata, dataset_name):
                     obj["category_id"] = id_map[obj["category_id"]]
                     record["annotations"] = [obj]
                     dicts.append(record)
-            if len(dicts) > int(shot):
+            if not(useSSAnnos) and (len(dicts) > int(shot)):
+
                 dicts = np.random.choice(dicts, int(shot), replace=False)
+               
+            # limit to x # shots
+            #if useSSAnnos and (len(dicts) > 10*int(shot)):
+            #    dicts = np.random.choice(dicts, 10*int(shot), replace=False)
             dataset_dicts.extend(dicts)
+            
     else:
         for (img_dict, anno_dict_list) in imgs_anns:
             record = {}
@@ -121,10 +148,10 @@ def load_coco_json(json_file, image_root, metadata, dataset_name):
     return dataset_dicts
 
 
-def register_meta_coco(name, metadata, imgdir, annofile):
+def register_meta_coco(name, metadata, imgdir, annofile, useSSAnnos=False):
     DatasetCatalog.register(
         name,
-        lambda: load_coco_json(annofile, imgdir, metadata, name),
+        lambda: load_coco_json(annofile, imgdir, metadata, name, useSSAnnos),
     )
 
     if "_base" in name or "_novel" in name:

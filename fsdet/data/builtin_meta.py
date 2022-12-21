@@ -375,6 +375,71 @@ PASCAL_VOC_BASE_CATEGORIES = {
     ],
 }
 
+# added 100 to class IDs to avoid clashes when combining with COCO
+SCANNET_CATEGORIES = [
+    {"color": [220, 20, 60], "isthing": 1, "id": 101, "name": "wall"},
+    {"color": [119, 11, 32], "isthing": 1, "id": 102, "name": "floor"},
+    {"color": [0, 0, 142], "isthing": 1, "id": 103, "name": "cabinet"},
+    {"color": [0, 0, 230], "isthing": 1, "id": 104, "name": "bed"},
+    {"color": [106, 0, 228], "isthing": 1, "id": 105, "name": "chair"},
+    {"color": [0, 60, 100], "isthing": 1, "id": 106, "name": "sofa"},
+    {"color": [0, 80, 100], "isthing": 1, "id": 107, "name": "table"},
+    {"color": [0, 0, 70], "isthing": 1, "id": 108, "name": "door"},
+    {"color": [0, 0, 192], "isthing": 1, "id": 109, "name": "window"},
+    {"color": [250, 170, 30], "isthing": 1, "id": 110, "name": "bookshelf"},
+    {"color": [100, 170, 30], "isthing": 1, "id": 111, "name": "picture"},
+    {"color": [220, 220, 0], "isthing": 1, "id": 112, "name": "counter"},
+    {"color": [175, 116, 175],"isthing": 1,"id": 113, "name": "blinds"},
+    {"color": [175, 116, 175],"isthing": 1,"id": 114, "name": "desk"  },
+    {"color": [250, 0, 30], "isthing": 1, "id": 115, "name": "shelves"},
+    {"color": [165, 42, 42], "isthing": 1, "id": 116, "name": "curtain"},
+    {"color": [255, 77, 255], "isthing": 1, "id": 117, "name": "dresser"},
+    {"color": [0, 226, 252], "isthing": 1, "id": 118, "name": "pillow"},
+    {"color": [182, 182, 255], "isthing": 1, "id": 119, "name": "mirror"},
+    {"color": [0, 82, 0], "isthing": 1, "id": 120, "name": "floor mat"},
+    {"color": [120, 166, 157], "isthing": 1, "id": 121, "name": "clothes"},
+    {"color": [110, 76, 0], "isthing": 1, "id": 122, "name": "ceiling"},
+    {"color": [174, 57, 255], "isthing": 1, "id": 123, "name": "books"},
+    {"color": [199, 100, 0], "isthing": 1, "id": 124, "name": "refridgerator"},
+    {"color": [72, 0, 118], "isthing": 1, "id": 125, "name": "television"},
+    {"color": [255, 179, 240], "isthing": 1, "id": 126, "name": "paper"},
+    {"color": [0, 125, 92], "isthing": 1, "id": 127, "name": "towel"},
+    {"color": [0, 125, 92], "isthing": 1, "id": 128, "name": "shower curtain"},
+    {"color": [0, 125, 92], "isthing": 1, "id": 129, "name": "box"},
+    {"color": [0, 125, 92], "isthing": 1, "id": 130, "name": "whiteboard"},
+    {"color": [209, 0, 151], "isthing": 1, "id": 131, "name": "person"},
+    {"color": [188, 208, 182], "isthing": 1, "id": 132, "name": "nightstand"},
+    {"color": [0, 220, 176], "isthing": 1, "id": 133, "name": "toilet"},
+    {"color": [255, 99, 164], "isthing": 1, "id": 134, "name": "sink"},
+    {"color": [92, 0, 73], "isthing": 1, "id": 135, "name": "lamp"},
+    {"color": [133, 129, 255], "isthing": 1, "id": 136, "name": "bathtub"},
+    {"color": [78, 180, 255], "isthing": 1, "id": 137, "name": "bag"},
+    {"color": [0, 228, 0], "isthing": 1, "id": 138, "name": "otherstructure"},
+    {"color": [174, 255, 243], "isthing": 1, "id": 139, "name": "otherfurniture"},
+    {"color": [45, 89, 255], "isthing": 1, "id": 140, "name": "otherprop"},
+]
+
+# Novel SCANNET categories
+SCANNET_NOVEL_CATEGORIES = [
+    {"color": [0, 0, 142], "isthing": 1, "id": 103, "name": "cabinet"},
+    {"color": [250, 170, 30], "isthing": 1, "id": 110, "name": "bookshelf"},
+    {"color": [100, 170, 30], "isthing": 1, "id": 111, "name": "picture"},
+    {"color": [175, 116, 175],"isthing": 1,"id": 114, "name": "desk",    },
+    {"color": [250, 0, 30], "isthing": 1, "id": 115, "name": "shelves"},
+    {"color": [165, 42, 42], "isthing": 1, "id": 116, "name": "curtain"},
+    {"color": [255, 77, 255], "isthing": 1, "id": 117, "name": "dresser"},
+    {"color": [0, 226, 252], "isthing": 1, "id": 118, "name": "pillow"},
+    {"color": [188, 208, 182], "isthing": 1, "id": 132, "name": "nightstand"},
+    {"color": [92, 0, 73], "isthing": 1, "id": 135, "name": "lamp"},
+]
+
+# Combined COCO and Scannet
+#COCO_SN_CATEGORIES = COCO_CATEGORIES[0:80] + SCANNET_NOVEL_CATEGORIES 
+
+COCO_SN_CATEGORIES = COCO_CATEGORIES[0:60] + SCANNET_NOVEL_CATEGORIES 
+
+COCO_SN_NOVEL_CATEGORIES = SCANNET_NOVEL_CATEGORIES
+
 
 def _get_coco_instances_meta():
     thing_ids = [k["id"] for k in COCO_CATEGORIES if k["isthing"] == 1]
@@ -453,6 +518,85 @@ def _get_pascal_voc_fewshot_instances_meta():
         "base_classes": PASCAL_VOC_BASE_CATEGORIES,
     }
     return ret
+    
+    
+def _get_scannet_instances_meta():
+
+    thing_ids = [k["id"] for k in SCANNET_CATEGORIES if k["isthing"] == 1]
+    thing_colors = [k["color"] for k in SCANNET_CATEGORIES if k["isthing"] == 1]
+    assert len(thing_ids) == 40, len(thing_ids)
+    thing_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(thing_ids)}
+    thing_classes = [k["name"] for k in SCANNET_CATEGORIES if k["isthing"] == 1]
+    ret = {
+        "thing_dataset_id_to_contiguous_id": thing_dataset_id_to_contiguous_id,
+        "thing_classes": thing_classes,
+        "thing_colors": thing_colors,
+    }
+    return ret
+    
+def _get_scannet_fewshot_instances_meta():
+    ret = _get_scannet_instances_meta()
+    novel_ids = [k["id"] for k in SCANNET_NOVEL_CATEGORIES if k["isthing"] == 1]
+    novel_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(novel_ids)}
+    novel_classes = [
+        k["name"] for k in SCANNET_NOVEL_CATEGORIES if k["isthing"] == 1
+    ]
+    base_categories = [
+        k
+        for k in SCANNET_CATEGORIES
+        if k["isthing"] == 1 and k["name"] not in novel_classes
+    ]
+    base_ids = [k["id"] for k in base_categories]
+    base_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(base_ids)}
+    base_classes = [k["name"] for k in base_categories]
+    ret[
+        "novel_dataset_id_to_contiguous_id"
+    ] = novel_dataset_id_to_contiguous_id
+    ret["novel_classes"] = novel_classes
+    ret["base_dataset_id_to_contiguous_id"] = base_dataset_id_to_contiguous_id
+    ret["base_classes"] = base_classes
+    
+    
+    return ret
+    
+
+def _get_coco_sn_instances_meta():
+    thing_ids = [k["id"] for k in COCO_SN_CATEGORIES if k["isthing"] == 1]
+    thing_colors = [k["color"] for k in COCO_SN_CATEGORIES if k["isthing"] == 1]
+    #assert len(thing_ids) == 90, len(thing_ids)
+    assert len(thing_ids) == 70, len(thing_ids)
+    # Mapping from the incontiguous COCO category id to an id in [0, 79]
+    thing_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(thing_ids)}
+    thing_classes = [k["name"] for k in COCO_SN_CATEGORIES if k["isthing"] == 1]
+    ret = {
+        "thing_dataset_id_to_contiguous_id": thing_dataset_id_to_contiguous_id,
+        "thing_classes": thing_classes,
+        "thing_colors": thing_colors,
+    }
+    return ret
+
+def _get_coco_sn_fewshot_instances_meta():
+    ret = _get_coco_sn_instances_meta()
+    novel_ids = [k["id"] for k in COCO_SN_NOVEL_CATEGORIES if k["isthing"] == 1]
+    novel_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(novel_ids)}
+    novel_classes = [
+        k["name"] for k in COCO_SN_NOVEL_CATEGORIES if k["isthing"] == 1
+    ]
+    base_categories = [
+        k
+        for k in COCO_SN_CATEGORIES
+        if k["isthing"] == 1 and k["name"] not in novel_classes
+    ]
+    base_ids = [k["id"] for k in base_categories]
+    base_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(base_ids)}
+    base_classes = [k["name"] for k in base_categories]
+    ret[
+        "novel_dataset_id_to_contiguous_id"
+    ] = novel_dataset_id_to_contiguous_id
+    ret["novel_classes"] = novel_classes
+    ret["base_dataset_id_to_contiguous_id"] = base_dataset_id_to_contiguous_id
+    ret["base_classes"] = base_classes
+    return ret
 
 
 def _get_builtin_metadata(dataset_name):
@@ -466,4 +610,12 @@ def _get_builtin_metadata(dataset_name):
         return _get_lvis_fewshot_instances_meta_v0_5()
     elif dataset_name == "pascal_voc_fewshot":
         return _get_pascal_voc_fewshot_instances_meta()
+    elif dataset_name == "scannet":
+        return _get_scannet_instances_meta()
+    elif dataset_name == "scannet_fewshot":
+        return _get_scannet_fewshot_instances_meta()
+    elif dataset_name == "coco_sn":
+        return _get_coco_sn_instances_meta()
+    elif dataset_name == "coco_sn_fewshot":
+        return _get_coco_sn_fewshot_instances_meta()
     raise KeyError("No built-in metadata for dataset {}".format(dataset_name))

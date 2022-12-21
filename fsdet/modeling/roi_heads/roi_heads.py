@@ -376,6 +376,7 @@ class Res5ROIHeads(ROIHeads):
             return pred_instances, {}
 
 
+
 @ROI_HEADS_REGISTRY.register()
 class StandardROIHeads(ROIHeads):
     """
@@ -450,6 +451,7 @@ class StandardROIHeads(ROIHeads):
         else:
             pred_instances = self._forward_box(features_list, proposals)
             return pred_instances, {}
+            
 
     def _forward_box(self, features, proposals):
         """

@@ -131,6 +131,27 @@ def default_argument_parser():
         default=None,
         nargs=argparse.REMAINDER,
     )
+    # for semi-supervised data generation
+    parser.add_argument(
+        "--ss-gt", type=str, help="ground truth to generate semi-supervised annotations"
+    )
+    parser.add_argument(
+        "--ss-auto", type=str, help="automatically generate semi-supervised annotations, use image set from provided gt file"
+    )
+    parser.add_argument(
+        "--ss-max", type=int, help="Limit semi-supervised annotations to specific number"
+    )
+    parser.add_argument(
+        "--ss-thresh", type=float, help="Minimum confidence for semi-supervised annotation"
+    )
+    parser.add_argument(
+        "--ss-min", type=float, help="If less than min number of samples are found, take it from other images"
+    )
+    parser.add_argument(
+        "--ss-annos", action="store_true", help="activate the use of semi-supervised annotations during training"
+    )
+    
+    
     return parser
 
 
