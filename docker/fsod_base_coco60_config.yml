@@ -1,0 +1,2 @@
+threshold: 0.2
+fsdet_config: faster_rcnn_R_101_FPN_base.yaml

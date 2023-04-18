@@ -1,0 +1,13 @@
+FROM fsdet_ms
+
+RUN mkdir /workspace/few-shot-object-detection/datasets/tm2
+COPY data_stage/tm2/ /workspace/few-shot-object-detection/datasets/tm2
+
+# insert name of host to copy scripts to from MakeSense
+#RUN sed -i 's/localhost/52.213.254.9/g' /workspace/make-sense/src/logic/export/FewshotExport.ts
+#RUN sed -i 's/localhost/digs015/g' /workspace/make-sense/src/logic/export/FewshotExport.ts
+
+WORKDIR /
+
+CMD ./dockerd-entrypoint.sh
+
