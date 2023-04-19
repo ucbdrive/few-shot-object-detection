@@ -92,7 +92,7 @@ def training_worker(name,jobfilepath,basemodelfile):
         model_store = os.getenv("MODEL_STORE")
 
     # run the training pipeline
-    #train_fs(args)
+    train_fs(args)
     
     # build the archive
     basename = basemodelfile.split('/')

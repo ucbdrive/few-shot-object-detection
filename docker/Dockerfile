@@ -25,14 +25,14 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 WORKDIR /
 
-RUN python3 -m pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+RUN python -m pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0 pynvml==11.4 -f https://download.pytorch.org/whl/torch_stable.html 
 
-RUN python3 -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html
+RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html
 
 # setup tools version that avoids distutil version issue
 # see https://github.com/pytorch/pytorch/issues/69894
-RUN pip install setuptools==59.5.0
-RUN pip install build
+RUN python -m pip install setuptools==59.5.0
+RUN python -m pip install build
 
 # rename to avoid clashes with other packages
 RUN mv /usr/local/lib/python3.8/dist-packages/tools /usr/local/lib/python3.8/dist-packages/dt2_tools
@@ -42,9 +42,11 @@ RUN mkdir /workspace && \
   cd /workspace && \ 
   git clone https://github.com/wbailer/few-shot-object-detection.git && \
   cd few-shot-object-detection && \
-  python3 -m pip install -r requirements.txt && \
+  python -m pip install -r requirements.txt && \
   python -m build && \
-  python -m pip install ./dist/fsdet-0.1-py3-none-any.whl 
+  python -m pip install /workspace/few-shot-object-detection/dist/fsdet-0.1-py3-none-any.whl 
+
+RUN ln -s /workspace/few-shot-object-detection/tools /workspace/few-shot-object-detection/fsdettools
 
 WORKDIR /
 
@@ -68,7 +70,7 @@ ENV TEMP=/home/model-server/tmp
 
 # FSDET server
 
-RUN python3 -m pip install flask flask-CORS
+RUN python -m pip install flask flask-CORS
 
 COPY fsserver.py /workspace/few-shot-object-detection/fsserver.py
 COPY dockerd-entrypoint.sh /dockerd-entrypoint.sh
