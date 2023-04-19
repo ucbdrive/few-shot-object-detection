@@ -9,11 +9,8 @@ exist in "./datasets/".
 
 Here we only register the few-shot datasets and complete COCO, PascalVOC and 
 LVIS have been handled by the builtin datasets in detectron2. 
-<<<<<<< HEAD
 """
-=======
 
->>>>>>> 54d2bd906d81e11c53064d81d53de28ea625b852
 
 import os
 from detectron2.data import DatasetCatalog, MetadataCatalog
