@@ -76,7 +76,7 @@ _PREDEFINED_SPLITS_COCO["coco"] = {
 }
 
 
-def register_all_coco(root="datasets",useSSAnnos=False):
+def register_all_coco(root="datasets"):
     # for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_COCO.items():
     #     for key, (image_root, json_file) in splits_per_dataset.items():
     #         # Assume pre-defined datasets live in `./datasets`.
@@ -119,8 +119,7 @@ def register_all_coco(root="datasets",useSSAnnos=False):
             name,
             _get_builtin_metadata("coco_fewshot"),
             os.path.join(root, imgdir),
-            os.path.join(root, annofile),
-            useSSAnnos
+            os.path.join(root, annofile)
         )
 
 
@@ -274,7 +273,7 @@ def register_all_pascal_voc(root="datasets"):
 
 
 # Register them all under "./datasets"
-register_all_coco(useSSAnnos=useSSAnnos)
+register_all_coco()
 register_all_lvis()
 register_all_pascal_voc()
 
