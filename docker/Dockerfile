@@ -44,7 +44,8 @@ RUN mkdir /workspace && \
   cd few-shot-object-detection && \
   python -m pip install -r requirements.txt && \
   python -m build && \
-  python -m pip install /workspace/few-shot-object-detection/dist/fsdet-0.1-py3-none-any.whl 
+  python -m pip install --force-reinstall /workspace/few-shot-object-detection/dist/fsdet-0.1-py3-none-any.whl 
+  
 
 RUN ln -s /workspace/few-shot-object-detection/tools /workspace/few-shot-object-detection/fsdettools
 RUN ln -s /workspace/few-shot-object-detection/datasets /workspace/few-shot-object-detection/fsdetdatasets
