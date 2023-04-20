@@ -104,10 +104,18 @@ class FSObjectDetector(ObjectDetector):
         if "custom_dataset" in conf.keys():
             self.args.custom_dataset = conf["custom_dataset"]
 
+        print("CUSTOM DS ")
+        print(self.args.custom_dataset)
+
 
         if not (self.args.custom_dataset == None):
             custom_dataset.register_all_custom(self.args.custom_dataset,"datasets")
 
+        print("DS TEST 0")
+        print(cfg.DATASETS.TEST)
+        
+        print("-------------")
+       
        
         self.cfg = self.setup_cfg(self.args)
 
