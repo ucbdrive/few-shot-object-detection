@@ -32,7 +32,7 @@ rm -r ./data_stage/config_ts
 mkdir data_stage/tm2
 cp -r ../datasets_fs/tm2 ./data_stage/
 
-docker build -t fsdet_ms .
+docker build --no-cache -t fsdet_ms .
 
 docker build -f Dockerfile.demo -t fsdet_ms:demo .
 

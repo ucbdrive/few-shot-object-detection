@@ -102,7 +102,7 @@ class FSObjectDetector(ObjectDetector):
         self.args.config_file=conf["fsdet_config"]
         self.args.custom_dataset=None
         if "custom_dataset" in conf.keys():
-            conf["custom_dataset"]
+            self.args.custom_dataset = conf["custom_dataset"]
 
 
         if not (self.args.custom_dataset == None):

@@ -47,6 +47,7 @@ RUN mkdir /workspace && \
   python -m pip install /workspace/few-shot-object-detection/dist/fsdet-0.1-py3-none-any.whl 
 
 RUN ln -s /workspace/few-shot-object-detection/tools /workspace/few-shot-object-detection/fsdettools
+RUN ln -s /workspace/few-shot-object-detection/datasets /workspace/few-shot-object-detection/fsdetdatasets
 
 WORKDIR /
 
