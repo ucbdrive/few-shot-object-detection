@@ -23,10 +23,17 @@ from detectron2.data import MetadataCatalog
 from fsdet.config import get_cfg
 from fsdet.config import CfgNode
 from fsdet.data import custom_dataset
+# import to register default datasets
+from fsdet.data import builtin
 from fsdet.engine import DefaultPredictor
 
 import yaml
 from pathlib import Path
+from PIL import Image
+import io
+
+
+from detectron2.data.detection_utils import read_image, convert_PIL_to_numpy
 
 
 class FSObjectDetector(ObjectDetector):
@@ -46,9 +53,9 @@ class FSObjectDetector(ObjectDetector):
         loaded_cfg_dict = CfgNode.load_yaml_with_base( args.config_file, allow_unsafe=True )
         try:
             
-            loaded_cfg_dict = {}
             
             loaded_cfg = CfgNode(loaded_cfg_dict, new_allowed=True)
+
             
         except Exception as e:
             print("Exception when converting to CfgNode")
@@ -106,35 +113,103 @@ class FSObjectDetector(ObjectDetector):
 
 
         if not (self.args.custom_dataset == None):
-            custom_dataset.register_all_custom(self.args.custom_dataset,"datasets")       
-       
+            custom_dataset.register_all_custom(self.args.custom_dataset,"datasets")  
+         
         self.cfg = self.setup_cfg(self.args)
 
         self.metadata = MetadataCatalog.get(
-            self.cfg.DATASETS.TEST[0] if len(self.cfg.DATASETS.TEST) else {}
+            self.cfg.DATASETS.TEST[0] if len(self.cfg.DATASETS.TEST) else "__unused"
         )
         self.cpu_device = torch.device("cpu")
 
         self.parallel = False
-        
-        print(self.cfg)
+
         
         self.predictor = DefaultPredictor(self.cfg)
 
         self.initialized = True
 
+
+    def preprocess(self, data):
+
+        images = []
+
+        for row in data:
+            # Compat layer: normally the envelope should just return the data
+            # directly, but older versions of Torchserve didn't have envelope.
+            image = row.get("data") or row.get("body")
+            if isinstance(image, str):
+                # if the image is a string of bytesarray.
+                image = base64.b64decode(image)
+
+            # If the image is sent as bytesarray
+            if isinstance(image, (bytearray, bytes)):
+                image = Image.open(io.BytesIO(image))
+                image = self.image_processing(image)
+            else:
+                print("service assumes one image as input")
+                image = None
+
+            images.append(image)
+
+        return images
         
         
     def inference(self, data, *args, **kwargs):
-
-        predictions = self.predictor(image)
         
-        # TODO - get predictions into right format for TS Detector output
-        print(predictions)
+        img = data[0]
+        if img.is_cuda:
+            img = img.cpu()
+            
+        topil = transforms.ToPILImage()
+        img = topil(img)
+        
+        #img = read_image('000000000001.jpg', format="BGR")
+        
+        img = convert_PIL_to_numpy(img, format="BGR")
+ 
+        predictions = self.predictor(img)
+
         
         return predictions
-                       
         
+    def postprocess(self,data):
+        result = []
+               
+        instances = data['instances']
+
+        
+        metadata = MetadataCatalog.get(self.cfg.DATASETS.TEST[0])
+
+        labels = metadata.thing_classes
+        
+        confident_detections = instances[instances.scores > self.threshold]
+
+        
+        for k in range(len(instances)):
+            instk = instances[[k]]
+        
+            retval = {}
+            clabel = labels[instk.pred_classes[0]]
+            
+            box = instk.pred_boxes[0].tensor
+            
+            if box.is_cuda:
+                box = box.cpu()
+                
+            score = instk.scores[0]
+            if score.is_cuda:
+                score = score.cpu()
+            score = score.item()
+            
+            retval[clabel] = box.tolist()
+            retval['score'] = score
+
+            result.append(retval)
+            
+        return [result]
+                       
+
     
 
 

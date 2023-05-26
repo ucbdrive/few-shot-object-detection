@@ -5,7 +5,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get -y install git && rm -rf /va
 
 RUN apt-get update -y
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev nano
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential checkinstall
 RUN DEBIAN_FRONTEND=noninteractive apt-get autoremove
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev ca-certificates 
@@ -82,7 +82,7 @@ RUN chmod +x /dockerd-entrypoint.sh
 ENV FSDET_ROOT=/workspace/few-shot-object-detection/
 ENV MODEL_STORE=/home/model-server/model-store/
 
-RUN apt-get update && apt-get -y install npm
+RUN apt-get -y install npm
 
 RUN cd /workspace && \ 
   git clone https://github.com/wbailer/make-sense.git && \
@@ -104,5 +104,5 @@ RUN mkdir /workspace/few-shot-object-detection/datasets/coco
 
 WORKDIR /
 
-CMD /bin/sh
+CMD /bin/bash
 #CMD ./dockerd-entrypoint.sh

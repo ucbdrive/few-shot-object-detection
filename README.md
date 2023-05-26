@@ -15,6 +15,8 @@ The tool has the following features:
 
 The tool currently supports annotations in COCO format. However, this does not mean that COCO is required as a base model, as long as the annotations are provided in this format. 
 
+A Docker container is provides, which contains a Torchserve server for inference, a Flask server providing endpoints to control the training process and a an Node.js instance running the MakeSense annotation tool.
+
 ## Files
 
 ```data/custom_dataset.py``` implements a class holding all required configuration for the training task, based on a configuration file. The implements all necessary function to provide the dataset specific information to ```builtin.py```, ```builtin_meta.py```, ```coco_evaluation.py``` and ```ckpt_surgery.py```.

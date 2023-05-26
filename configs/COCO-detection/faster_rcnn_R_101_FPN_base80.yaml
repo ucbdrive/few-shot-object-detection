@@ -1,0 +1,16 @@
+_BASE_: "../Base-RCNN-FPN.yaml"
+MODEL:
+  WEIGHTS: "models/R-101.pkl"
+  MASK_ON: False
+  RESNETS:
+    DEPTH: 101
+  ROI_HEADS:
+    NUM_CLASSES: 80
+DATASETS:
+  TRAIN: ('coco_2014_train',)
+  TEST: ('coco_2014_val',)
+SOLVER:
+  IMS_PER_BATCH: 16
+  STEPS: (85000, 100000)
+  MAX_ITER: 110000
+OUTPUT_DIR: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_base80"
