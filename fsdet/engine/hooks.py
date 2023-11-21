@@ -70,9 +70,19 @@ class EvalHookFsdet(HookBase):
         # A barrier make them start the next iteration together.
         comm.synchronize()
 
+    def compute_centroids(self):
+        # iterate over the training set and compute centroids for each roi head
+        self.trainer.model.eval()
+        for data in self.trainer._data_loader_iter:
+            outs = self.trainer.model(data)
+        pass
+
     def after_step(self):
         next_iter = self.trainer.iter + 1
         if self._period > 0 and next_iter % self._period == 0:
+            # if self.cfg.MODEL.ROI_HEADS.NUM_HEADS > 1:
+            #     self.compute_centroids()
+            # train_loader = self.trainer.data_loader
             self._do_eval()
 
     def after_train(self):

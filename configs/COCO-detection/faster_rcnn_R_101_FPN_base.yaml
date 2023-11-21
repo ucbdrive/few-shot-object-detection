@@ -10,7 +10,11 @@ DATASETS:
   TRAIN: ('coco_trainval_base',)
   TEST: ('coco_test_base',)
 SOLVER:
-  IMS_PER_BATCH: 16
-  STEPS: (85000, 100000)
-  MAX_ITER: 110000
+  IMS_PER_BATCH: 2
+#  STEPS: (85000, 100000)
+  STEPS: (200, 400)
+#  MAX_ITER: 110000
+  MAX_ITER: 600
+#  BASE_LR: 0.02
+  BASE_LR: 0.005
 OUTPUT_DIR: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_base"

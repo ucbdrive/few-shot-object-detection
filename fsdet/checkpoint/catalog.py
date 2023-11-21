@@ -1,5 +1,6 @@
 """FS-Det Model Handler."""
-from fvcore.common.file_io import PathHandler, PathManager
+# from fvcore.common.file_io import PathHandler, PathManager
+from detectron2.utils.file_io import PathHandler, PathManager
 
 import logging
 

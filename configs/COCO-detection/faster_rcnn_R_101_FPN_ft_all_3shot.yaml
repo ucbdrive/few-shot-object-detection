@@ -16,7 +16,7 @@ DATASETS:
   TRAIN: ('coco_trainval_all_3shot',)
   TEST: ('coco_test_all',)
 SOLVER:
-  IMS_PER_BATCH: 16
+  IMS_PER_BATCH: 8
   BASE_LR: 0.001
   STEPS: (43200,)
   MAX_ITER: 48000

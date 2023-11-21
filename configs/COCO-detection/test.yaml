@@ -1,13 +1,17 @@
 _BASE_: "../Base-RCNN-FPN.yaml"
 MODEL:
-  WEIGHTS: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_ft_novel_30shot_combine/model_reset_combine.pth"
+  META_ARCHITECTURE: "EnsembledGeneralizedRCNN"
+  WEIGHTS: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_all/model_reset_ensemble.pth"
   MASK_ON: False
   RESNETS:
     DEPTH: 101
   ROI_HEADS:
+    NAME: "EnsambledROIHeads"
     NUM_CLASSES: 80
-    OUTPUT_LAYER: "CosineSimOutputLayers"
+    OUTPUT_LAYER: "EnsembledFastRCNNOutputLayers"
     FREEZE_FEAT: True
+    NUM_HEADS: 10
+    HEAD_DROP_PROB: 0.6
   BACKBONE:
     FREEZE: True
   PROPOSAL_GENERATOR:
@@ -16,10 +20,12 @@ DATASETS:
   TRAIN: ('coco_trainval_all_30shot',)
   TEST: ('coco_test_all',)
 SOLVER:
-  IMS_PER_BATCH: 16
+  IMS_PER_BATCH: 8
   BASE_LR: 0.001
   STEPS: (216000,)
   MAX_ITER: 240000
-  CHECKPOINT_PERIOD: 12000
+  CHECKPOINT_PERIOD: 500
   WARMUP_ITERS: 10
+TEST:
+  EVAL_PERIOD: 10000
 OUTPUT_DIR: "checkpoints/coco/faster_rcnn/faster_rcnn_R_101_FPN_ft_all_30shot"

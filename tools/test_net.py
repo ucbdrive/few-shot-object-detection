@@ -18,7 +18,7 @@ import numpy as np
 import torch
 
 from fsdet.config import get_cfg, set_global_cfg
-from fsdet.engine import DefaultTrainer, default_argument_parser, default_setup
+from fsdet.engine import DefaultTrainer, DefaultEnsembleTrainer, default_argument_parser, default_setup
 
 import detectron2.utils.comm as comm
 import json
@@ -118,6 +118,7 @@ def setup(args):
     Create configs and perform basic setups.
     """
     cfg = get_cfg()
+    cfg.set_new_allowed(True)
     cfg.merge_from_file(args.config_file)
     if args.opts:
         cfg.merge_from_list(args.opts)

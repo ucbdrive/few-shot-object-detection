@@ -3,7 +3,14 @@ import torch
 import argparse
 import os
 import sys
+import functools
+import pickle
+import dill
 
+from fsdet.config import get_cfg, set_global_cfg
+from fsdet.engine import default_setup
+from fsdet.modeling import build_model
+import torch.nn as nn
 
 lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'../fsdet/data'))
 sys.path.append(lib_path)
@@ -19,8 +26,14 @@ def parse_args():
                         help='Path to the secondary checkpoint (for combining)')
     parser.add_argument('--save-dir', type=str, default='',
                         help='Save directory')
+    parser.add_argument('--ensemble_config', type=str, default='',
+                        help='Path to the ensemble config file')
+    parser.add_argument('--opts', default=None, nargs=argparse.REMAINDER,
+                        help='Modify config options using the command-line')
+    parser.add_argument("--custom_datacfg", type=str,
+                        help="config file of custom dataset")
     # Surgery method
-    parser.add_argument('--method', choices=['combine', 'remove', 'randinit'],
+    parser.add_argument('--method', choices=['combine', 'remove', 'randinit', 'ensemble'],
                         required=True,
                         help='Surgery method. combine = '
                              'combine checkpoints. remove = for fine-tuning on '
@@ -43,8 +56,59 @@ def parse_args():
                         help='For COCO+SCANNET models')
     parser.add_argument('--custom', type=str,
                         help='For custom dataset, provide the configuration file')
+
+    # Ensembling
+    parser.add_argument(
+        "--num-heads", type=int, help="Number of ensembled classifier heads", default=1
+    )
+
     args = parser.parse_args()
     return args
+
+
+def rsetattr(obj, attr, val):
+    pre, _, post = attr.rpartition('.')
+    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+
+
+def rgetattr(obj, attr, *args):
+    def _getattr(obj, attr):
+        return getattr(obj, attr, *args)
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
+
+
+def setup(args):
+    """
+    Create configs and perform basic setups.
+    """
+    cfg = get_cfg()
+    cfg.set_new_allowed(True)
+    cfg.merge_from_file(args.ensemble_config)
+    if args.opts:
+        cfg.merge_from_list(args.opts)
+
+    # parse custom dataset
+    if not(args.custom_datacfg is None):
+        cds = custom_dataset.CustomDataset()
+
+        cds.parse(args.custom_datacfg)
+        cfg.CUSTOMDATASET_BASE = cds.get_base_class_ids()
+        cfg.CUSTOMDATASET_NOVEL = cds.get_novel_class_ids()
+    else:
+        cfg.CUSTOMDATASET_BASE = None
+        cfg.CUSTOMDATASET_NOVEL = None
+
+    if args.num_heads > 1:
+        cfg.MODEL.META_ARCHITECTURE = "EnsembledGeneralizedRCNN"
+        cfg.MODEL.ROI_HEADS.NAME = "EnsambledROIHeads"
+        cfg.MODEL.ROI_HEADS.OUTPUT_LAYER = "EnsembledFastRCNNOutputLayers"
+        cfg.MODEL.ROI_HEADS.NUM_HEADS = args.num_heads
+        cfg.MODEL.ROI_HEADS.HEAD_DROP_PROB =  0.6
+
+    cfg.freeze()
+    set_global_cfg(cfg)
+    default_setup(cfg, args)
+    return cfg
 
 
 def ckpt_surgery(args):
@@ -96,7 +160,7 @@ def combine_ckpts(args):
             return
         weight_name = param_name + ('.weight' if is_weight else '.bias')
         pretrained_weight = ckpt['model'][weight_name]
-        
+
         prev_cls = pretrained_weight.size(0)
         if 'cls_score' in param_name:
             prev_cls -= 1
@@ -171,7 +235,7 @@ def surgery_loop(args, surgery):
     for idx, (param_name, tar_size) in enumerate(zip(args.param_name,
                                                      tar_sizes)):
 
-                                                           
+
         surgery(param_name, True, tar_size, ckpt, ckpt2)
         surgery(param_name, False, tar_size, ckpt, ckpt2)
 
@@ -179,8 +243,105 @@ def surgery_loop(args, surgery):
     save_ckpt(ckpt, save_path)
 
 
-def save_ckpt(ckpt, save_name):
-    torch.save(ckpt, save_name)
+def ensemble_ckpts(args):
+    ckpt = torch.load(args.src1)
+    ckpt_state_dict = ckpt['model']
+    cfg = setup(args)
+    model = build_model(cfg)
+
+    # Copying common parts from base pre-trained state dict to new model state dict:
+    model_state_dict = model.state_dict()
+    for k in model_state_dict.keys():
+        if (k in ckpt_state_dict.keys()) \
+            and (k != 'roi_heads.box_predictor.bbox_pred.bias') \
+            and (k != 'roi_heads.box_predictor.bbox_pred.weight'):
+            model_state_dict[k] = ckpt_state_dict[k]
+        if (k == 'roi_heads.box_predictor.bbox_pred.bias'):
+            pass
+    # Load the newly adjusted state dict into the model
+    model.load_state_dict(model_state_dict, strict=False)
+
+    bbox_pred_weight = model.roi_heads.box_predictor.bbox_pred.weight
+    bbox_pred_bias = model.roi_heads.box_predictor.bbox_pred.bias
+    bbox_pred = [bbox_pred_weight, bbox_pred_bias]
+    types = ["weight", "bias"]
+    cls_score_list = model.roi_heads.box_predictor.cls_score
+
+
+    tar_sizes = [TAR_SIZE + 1, TAR_SIZE * 4]
+    tar_box_pred = TAR_SIZE * 4
+    tar_class_pred = TAR_SIZE + 1
+    for type in types:
+        # Address the box predictor
+        # ens_model_layer = getattr(model.roi_heads.box_predictor.bbox_pred, type)
+        model_box_pred_feat = getattr(model.roi_heads.box_predictor.bbox_pred, type)
+        pretrained = ckpt_state_dict["roi_heads.box_predictor.bbox_pred.{}".format(type)]
+        prev_cls = pretrained.size(0)
+        # Initialize all weights and biases in the new model
+        if type == "weight":
+            feat_size = pretrained.size(1)
+            new_layer = torch.rand((tar_box_pred, feat_size))
+            torch.nn.init.normal_(new_layer, 0, 0.01)
+        else:
+            new_layer = torch.zeros(tar_box_pred)
+        # Copy the BASE CLASSES trained weights and biases from the pre-trained model
+        for i, c in enumerate(BASE_CLASSES):
+            idx = i if args.coco else c
+            new_layer[IDMAP[c] * 4:(IDMAP[c] + 1) * 4] = pretrained[idx * 4:(idx + 1) * 4]
+        # Copy the NOVEL CLASSES trained weights and biases from the ensembled model
+        for i, c in enumerate(NOVEL_CLASSES):
+            new_layer[IDMAP[c] * 4:(IDMAP[c] + 1) * 4] = model_box_pred_feat[i * 4:(i + 1) * 4]
+        rsetattr(model, str("roi_heads.box_predictor.bbox_pred.{}".format(type)), nn.Parameter(new_layer))
+
+        # Address the head classifiers
+        pretrained = ckpt_state_dict["roi_heads.box_predictor.cls_score.{}".format(type)]
+        model_box_class = model.roi_heads.box_predictor.cls_score
+        prev_cls = pretrained.size(0)
+        for index, head in enumerate(cls_score_list):
+            ens_model_layer = getattr(head, type)
+            prev_cls -= 1
+            # Initialize all weights and biases in the new model
+            if type == "weight":
+                feat_size = pretrained.size(1)
+                new_layer = torch.rand((tar_class_pred, feat_size))
+                torch.nn.init.normal_(new_layer, 0, 0.01)
+            else:
+                new_layer = torch.zeros(tar_class_pred)
+            # Copy the trained weights and biases from the pre-trained model
+            for i, c in enumerate(BASE_CLASSES):
+                idx = i if args.coco else c
+                new_layer[IDMAP[c]] = pretrained[idx]
+            new_layer[-1] = pretrained[-1]  # bg class
+            for i, c in enumerate(NOVEL_CLASSES):
+                new_layer[IDMAP[c]] = ens_model_layer[i]
+            if type == 'weight': # need to find a more clever way of writing these 2 instructions
+                model.roi_heads.box_predictor.cls_score[index].weight = nn.Parameter(new_layer)
+            else:
+                model.roi_heads.box_predictor.cls_score[index].bias = nn.Parameter(new_layer)
+            # rsetattr(model, "roi_heads.box_predictor.cls_score[{}].{}".format(index, type), new_layer)
+
+    save_name = args.tar_name + '_ensemble.pth'
+    if args.save_dir == '':
+    # By default, save to directory of src1
+        save_dir = os.path.dirname(args.src1)
+    else:
+        save_dir = args.save_dir
+
+    save_path = os.path.join(save_dir, save_name)
+    os.makedirs(save_dir, exist_ok=True)
+
+    # Save to file
+    model_ckpt = {}
+    model_ckpt['model'] = model.state_dict()
+    save_ckpt(model.state_dict(), save_path, dill)
+    #
+    # ckpt2 = torch.load(save_path)
+    #
+    # pass
+
+
+def save_ckpt(ckpt, save_name, pickle_module=pickle):
+    torch.save(ckpt, save_name, pickle_module=pickle_module)
     print('save changed ckpt to {}'.format(save_name))
 
 
@@ -283,7 +444,7 @@ def main(arglist):
             36, 37, 38, 39, 40, 41, 42, 43, 46, 47, 48, 49, 50, 51, 52, 53, 54,
             55, 56, 57, 58, 59, 60, 61, 65, 70, 73, 74, 75, 76, 77, 78, 79, 80,
             81, 82, 84, 85, 86, 87, 88, 89, 90,
-        ]        
+        ]
         ALL_CLASSES = sorted(BASE_CLASSES + NOVEL_CLASSES)
         IDMAP = {v:i for i, v in enumerate(ALL_CLASSES)}
         # TAR_SIZE = 90
@@ -293,35 +454,37 @@ def main(arglist):
     else:
         # VOC
         TAR_SIZE = 20
-        
+
     # custom dataset
     if not(args.custom is None):
         cds = custom_dataset.CustomDataset()
         cds.parse(args.custom)
-        
+
         NOVEL_CLASSES = cds.get_novel_class_ids()
         BASE_CLASSES = cds.get_base_class_ids()
-        
+
         ALL_CLASSES = sorted(BASE_CLASSES + NOVEL_CLASSES)
-        IDMAP = {v:i for i, v in enumerate(ALL_CLASSES)}       
-        
+        IDMAP = {v:i for i, v in enumerate(ALL_CLASSES)}
+
         TAR_SIZE = cds.get_nclasses_all()
-        
+
         args.coco = True
 
 
     if args.method == 'combine':
         combine_ckpts(args)
+    elif args.method == 'ensemble':
+        ensemble_ckpts(args)
     else:
         ckpt_surgery(args)
-        
-        
+
+
 if __name__ == '__main__':
     TAR_SIZE = 0
     BASE_CLASSES = []
     NOVEL_CLASSES = []
     ALL_CLASSES = []
     IDMAP = []
-    
+
     main(sys.argv)
-    
+

@@ -18,6 +18,8 @@ logger-files/
 
 exp/
 checkpoints/
+venv/
+.run/
 
 # datasets
 datasets/coco

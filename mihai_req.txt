@@ -1,0 +1,13 @@
+# python 3.8 (required for package installers)
+# CUDA 11.0 (required for notebook's GPU)
+# Detectron2 v0.3 (first version that supports CUDA 11.0)
+# PyTorch 1.7.0 (required for Detectron2)
+# dill required for ModuleList pickle
+
+python3.8 -m venv venv
+source venv/bin/activate
+
+pip install torch==1.7.0+cu110 torchvision==0.8.1+cu110 torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+python -m pip install detectron2==0.3 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu110/torch1.7/index.html
+pip install -r requirements.txt
+pip install dill

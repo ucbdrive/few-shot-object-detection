@@ -15,7 +15,7 @@ You may want to write your own script with your datasets and other customization
 """
 
 from fsdet.config import get_cfg, set_global_cfg
-from fsdet.engine import DefaultTrainer, default_argument_parser, default_setup
+from fsdet.engine import DefaultTrainer, DefaultEnsembleTrainer, default_argument_parser, default_setup
 from fsdet.data import custom_dataset
 
 import detectron2.utils.comm as comm
@@ -76,11 +76,59 @@ class Trainer(DefaultTrainer):
         return DatasetEvaluators(evaluator_list)
 
 
+class EnsembleTrainer(DefaultEnsembleTrainer):
+    """
+    We use the "DefaultTrainer" which contains a number pre-defined logic for
+    standard training workflow. They may not work for you, especially if you
+    are working on a new research project. In that case you can use the cleaner
+    "SimpleTrainer", or write your own training loop.
+    """
+
+    @classmethod
+    def build_evaluator(cls, cfg, dataset_name, output_folder=None):
+
+        """
+        Create evaluator(s) for a given dataset.
+        This uses the special metadata "evaluator_type" associated with each builtin dataset.
+        For your own dataset, you can simply create an evaluator manually in your
+        script and do not have to worry about the hacky if-else logic here.
+        """
+        if output_folder is None:
+            output_folder = os.path.join(cfg.OUTPUT_DIR, "inference")
+        evaluator_list = []
+        evaluator_type = MetadataCatalog.get(dataset_name).evaluator_type
+        if evaluator_type == "coco":
+            baseclsids = None
+            novelclsids = None
+
+            if not (cfg.CUSTOMDATASET_BASE is None):
+                baseclsids = cfg.CUSTOMDATASET_BASE
+                novelclsids = cfg.CUSTOMDATASET_NOVEL
+
+            evaluator_list.append(
+                COCOEvaluator(dataset_name, cfg, True, output_folder, baseclsids, novelclsids)
+            )
+        if evaluator_type == "pascal_voc":
+            return PascalVOCDetectionEvaluator(dataset_name)
+        if evaluator_type == "lvis":
+            return LVISEvaluator(dataset_name, cfg, True, output_folder)
+        if len(evaluator_list) == 0:
+            raise NotImplementedError(
+                "no Evaluator for the dataset {} with the type {}".format(
+                    dataset_name, evaluator_type
+                )
+            )
+        if len(evaluator_list) == 1:
+            return evaluator_list[0]
+        return DatasetEvaluators(evaluator_list)
+
+
 def setup(args):
     """
     Create configs and perform basic setups.
     """
     cfg = get_cfg()
+    cfg.set_new_allowed(True)
     cfg.merge_from_file(args.config_file)
     if args.opts:
         cfg.merge_from_list(args.opts)
@@ -95,6 +143,13 @@ def setup(args):
     else:
         cfg.CUSTOMDATASET_BASE = None
         cfg.CUSTOMDATASET_NOVEL = None
+
+    if args.num_heads > 1:
+        cfg.MODEL.META_ARCHITECTURE = "EnsembledGeneralizedRCNN"
+        cfg.MODEL.ROI_HEADS.NAME = "EnsambledROIHeads"
+        cfg.MODEL.ROI_HEADS.OUTPUT_LAYER = "EnsembledFastRCNNOutputLayers"
+        cfg.MODEL.ROI_HEADS.NUM_HEADS = args.num_heads
+        cfg.MODEL.ROI_HEADS.HEAD_DROP_PROB =  0.6
         
     cfg.freeze()
     set_global_cfg(cfg)
@@ -126,7 +181,14 @@ def main(args):
     If you'd like to do anything fancier than the standard training logic,
     consider writing your own training loop or subclassing the trainer.
     """
-    trainer = Trainer(cfg)
+    if hasattr(cfg.MODEL.ROI_HEADS, "NUM_HEADS"):
+        if cfg.MODEL.ROI_HEADS.NUM_HEADS > 1:
+            trainer = EnsembleTrainer(cfg)
+        else:
+            trainer = Trainer(cfg)
+    else:
+        trainer = Trainer(cfg)
+    # trainer = Trainer(cfg)
     trainer.resume_or_load(resume=args.resume)
     return trainer.train()
 

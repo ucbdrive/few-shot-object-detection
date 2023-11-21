@@ -104,3 +104,22 @@ def train_fs(args):
         process_training_task(cds,cdsconfig,ignoreunknown)
 
    
+    ### Ensemble entry point here ###
+    if args.ensemble:
+        print('preparing ensembled classifiers')
+        surgeryfct(['ckpt_surgery',
+                    '--src1', 'checkpoints/coco/base_model/model_final.pth',
+                    '--method','ensemble',
+                    '--ensemble_config', 'configs/COCO-detection/'+cds.get_name()+'.yaml'],
+                   # '--ensemble_config', 'configs/COCO-detection/test.yaml'])
+                    '--num-heads', args.num_heads)
+
+        print('fine-tuning')
+        trainfct(['train_net',
+                  '--config-file', 'configs/COCO-detection/'+cds.get_name()+'.yaml',
+                  # '--config-file', 'configs/COCO-detection/test.yaml',
+                  '--num-heads', args.num_heads,
+                  '--opts', 'MODEL.WEIGHTS',
+                  'checkpoints/coco/base_model/model_reset_ensemble.pth'])
+
+        print('\nCOMPLETED')

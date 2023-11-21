@@ -72,6 +72,49 @@ def fast_rcnn_inference(
         kept_indices: (list[Tensor]): A list of 1D tensor of length of N, each element indicates
             the corresponding boxes/scores index in [0, Ri) from the input, for image i.
     """
+
+    # if not isinstance(scores, list):
+    #     result_per_image = [
+    #         fast_rcnn_inference_single_image(
+    #             boxes_per_image,
+    #             scores_per_image,
+    #             image_shape,
+    #             score_thresh,
+    #             nms_thresh,
+    #             topk_per_image,
+    #         )
+    #         for scores_per_image, boxes_per_image, image_shape in zip(
+    #             scores, boxes, image_shapes
+    #         )
+    #     ]
+    #     return tuple(list(x) for x in zip(*result_per_image))
+    #
+    # else:
+    #     result_per_image = []
+    #     fast_rcnn_inference_single_image_ensemble(scores,
+    #                 boxes,
+    #                 image_shapes,
+    #                 score_thresh,
+    #                 nms_thresh,
+    #                 topk_per_image,)
+    #     return tuple(list(x) for x in zip(*result_per_image))
+
+    if isinstance(scores, list):
+        score_ens = list(scores[0])
+        for score in list(scores[1:]):
+            for img_idx in range(len(image_shapes)):
+                score_ens[img_idx] = torch.cat((score_ens[img_idx], score[img_idx]), dim=0)
+        score_ens = tuple(score_ens)
+
+        boxes_ens = list(boxes)
+        for head_idx in range(1, len(scores)):
+            for img_idx in range(len(image_shapes)):
+                boxes_ens[img_idx] = torch.cat((boxes_ens[img_idx], boxes[img_idx]), dim=0)
+        boxes_ens = tuple(boxes_ens)
+
+        scores = score_ens
+        boxes = boxes_ens
+
     result_per_image = [
         fast_rcnn_inference_single_image(
             boxes_per_image,
@@ -86,7 +129,6 @@ def fast_rcnn_inference(
         )
     ]
     return tuple(list(x) for x in zip(*result_per_image))
-
 
 def fast_rcnn_inference_single_image(
     boxes, scores, image_shape, score_thresh, nms_thresh, topk_per_image
@@ -113,7 +155,8 @@ def fast_rcnn_inference_single_image(
     filter_mask = scores > score_thresh  # R x K
     # R' x 2. First column contains indices of the R predictions;
     # Second column contains indices of classes.
-    filter_inds = filter_mask.nonzero()
+    # filter_inds = filter_mask.nonzero()
+    filter_inds = torch.nonzero(filter_mask, as_tuple=False)
     if num_bbox_reg_classes == 1:
         boxes = boxes[filter_inds[:, 0], 0]
     else:
@@ -132,6 +175,45 @@ def fast_rcnn_inference_single_image(
     result.pred_classes = filter_inds[:, 1]
     return result, filter_inds[:, 0]
 
+
+def fast_rcnn_inference_single_image_ensemble(
+    scores, boxes, image_shapes, score_thresh, nms_thresh, topk_per_image
+):
+    score_ens = list(scores[0])
+    for score in list(scores[1:]):
+        for img_idx in range(len(image_shapes)):
+            score_ens[img_idx] = torch.cat((score_ens[img_idx], score[img_idx]), dim=0)
+    score_ens = tuple(score_ens)
+
+    boxes_ens = list(boxes)
+    for head_idx in range(1,len(scores)):
+        for img_idx in range(len(image_shapes)):
+            boxes_ens[img_idx] = torch.cat((boxes_ens[img_idx], boxes[img_idx]), dim=0)
+    boxes_ens = tuple(boxes_ens)
+
+    score_ens = score_ens[:, :-1]
+    num_bbox_reg_classes = boxes_ens.shape[1] // 4
+    # Convert to Boxes to use the `clip` function ...
+    boxes_ens = Boxes(boxes_ens.reshape(-1, 4))
+    boxes_ens.clip(image_shapes)
+    boxes_ens = boxes_ens.tensor.view(-1, num_bbox_reg_classes, 4)  # R x C x 4
+
+    # Filter results based on detection scores
+    filter_mask = score_ens > score_thresh  # R x K
+    # R' x 2. First column contains indices of the R predictions;
+    # Second column contains indices of classes.
+    filter_inds = filter_mask.nonzero()
+    if num_bbox_reg_classes == 1:
+        boxes_ens = boxes_ens[filter_inds[:, 0], 0]
+    else:
+        boxes_ens = boxes_ens[filter_mask]
+    score_ens = score_ens[filter_mask]
+
+    result = Instances(image_shapes)
+    result.pred_boxes = Boxes(boxes)
+    result.scores = scores
+    result.pred_classes = filter_inds[:, 1]
+    return result, filter_inds[:, 0]
 
 class FastRCNNOutputs(object):
     """
@@ -192,6 +274,8 @@ class FastRCNNOutputs(object):
         Log the accuracy metrics to EventStorage.
         """
         num_instances = self.gt_classes.numel()
+        # pred_classes = self.pred_class_logits[0].argmax(dim=1)
+        # bg_class_ind = self.pred_class_logits[0].shape[0] - 1
         pred_classes = self.pred_class_logits.argmax(dim=1)
         bg_class_ind = self.pred_class_logits.shape[1] - 1
 
@@ -217,6 +301,19 @@ class FastRCNNOutputs(object):
             storage.put_scalar(
                 "fast_rcnn/false_negative", num_false_negative / num_fg
             )
+
+    def ensemble_loss(self):
+        total_loss, total_acc = 0, 0
+        for logits in self.pred_class_logits:
+            if logits is not None:
+                log_p_y = F.log_softmax(logits, dim=1)
+                preds = log_p_y.argmax(-1)
+                labels = self.gt_classes.type(torch.long)
+                loss = F.nll_loss(log_p_y, labels, reduction='mean')
+                acc = torch.eq(preds, labels).float().mean()
+                total_loss = total_loss + loss
+                total_acc = total_acc + acc
+        return total_loss
 
     def softmax_cross_entropy_loss(self):
         """
@@ -264,7 +361,12 @@ class FastRCNNOutputs(object):
         cls_agnostic_bbox_reg = self.pred_proposal_deltas.size(1) == box_dim
         device = self.pred_proposal_deltas.device
 
-        bg_class_ind = self.pred_class_logits.shape[1] - 1
+        if isinstance(self.pred_class_logits, list):
+            bg_class_ind = self.pred_class_logits[0].shape[1]-1
+        else:
+            bg_class_ind = self.pred_class_logits.shape[1] - 1
+
+
 
         # Box delta loss is only computed between the prediction for the gt class k
         # (if 0 <= k < bg_class_ind) and the target; there is no loss defined on predictions
@@ -337,7 +439,14 @@ class FastRCNNOutputs(object):
         """
         l1loss = self.smooth_l1_loss()
         #print(l1loss)
-    
+
+        if isinstance(self.pred_class_logits, list):
+            return {
+                # "loss_cls": self.softmax_cross_entropy_loss(),
+                "loss_cls": self.ensemble_loss(),
+                "loss_box_reg": l1loss,
+            }
+
         return {
             "loss_cls": self.softmax_cross_entropy_loss(),
             "loss_box_reg": l1loss,
@@ -370,8 +479,18 @@ class FastRCNNOutputs(object):
                 Element i has shape (Ri, K + 1), where Ri is the number of predicted objects
                 for image i.
         """
-        probs = F.softmax(self.pred_class_logits, dim=-1)
-        return probs.split(self.num_preds_per_image, dim=0)
+        # Add ensemble logic here
+        if not isinstance(self.pred_class_logits, list):
+            probs = F.softmax(self.pred_class_logits, dim=-1)
+            return probs.split(self.num_preds_per_image, dim=0)
+        else:
+            # perform mean over all head outputs
+            # probs = torch.mean(torch.stack(self.pred_class_logits), dim=0)
+            probs = [F.softmax(class_logit, dim=-1) for class_logit in self.pred_class_logits]
+            return [prob.split(self.num_preds_per_image, dim=0) for prob in probs]
+
+        # return probs.split(self.num_preds_per_image, dim=0)
+
 
     def inference(self, score_thresh, nms_thresh, topk_per_image):
         """
@@ -459,8 +578,6 @@ class FastRCNNOutputLayers(nn.Module):
         scores = self.cls_score(x)
         proposal_deltas = self.bbox_pred(x)
         return scores, proposal_deltas
-        
-
 
 
 @ROI_HEADS_OUTPUT_REGISTRY.register()
@@ -569,5 +686,71 @@ def get_iou(bb1, bb2):
     assert iou >= 0.0
     assert iou <= 1.0
     return iou
+
+
+@ROI_HEADS_OUTPUT_REGISTRY.register()
+class EnsembledFastRCNNOutputLayers(nn.Module):
+    """
+    Two linear layers for predicting Fast R-CNN outputs:
+      (1) proposal-to-detection box regression deltas
+      (2) classification scores
+    """
+
+    def __init__(
+            self, cfg, input_size, num_classes, cls_agnostic_bbox_reg, box_dim=4
+    ):
+        """
+        Args:
+            cfg: config
+            input_size (int): channels, or (channels, height, width)
+            num_classes (int): number of foreground classes
+            cls_agnostic_bbox_reg (bool): whether to use class agnostic for bbox regression
+            box_dim (int): the dimension of bounding boxes.
+                Example box dimensions: 4 for regular XYXY boxes and 5 for rotated XYWHA boxes
+        """
+        super(EnsembledFastRCNNOutputLayers, self).__init__()
+
+        if not isinstance(input_size, int):
+            input_size = np.prod(input_size)
+
+        # The prediction layer for num_classes foreground classes and one
+        # background class
+        # (hence + 1)
+        self.num_heads = cfg.MODEL.ROI_HEADS.NUM_HEADS
+        self.head_drop_prob = cfg.MODEL.ROI_HEADS.HEAD_DROP_PROB
+        # self.cls_score = [nn.Linear(input_size, num_classes + 1) for x in range(self.num_heads)]
+        self.cls_score = nn.ModuleList([nn.Linear(input_size, num_classes + 1) for x in range(self.num_heads)])
+        num_bbox_reg_classes = 1 if cls_agnostic_bbox_reg else num_classes
+        self.bbox_pred = nn.Linear(input_size, num_bbox_reg_classes * box_dim)
+
+        for score in self.cls_score:
+            nn.init.normal_(score.weight, std=0.01)
+            nn.init.constant_(score.bias, 0)
+        nn.init.normal_(self.bbox_pred.weight, std=0.001)
+        nn.init.constant_(self.bbox_pred.bias, 0)
+
+    def sample_bool_inds(self, prob=0.7):
+        bool_inds = (torch.rand(self.num_heads) < prob).type(torch.uint8)
+        if bool_inds.type(torch.int).sum() == 0:
+            rnd_ind = (torch.rand(1) * self.num_heads).type(torch.long)
+            bool_inds[rnd_ind] = 1
+        return bool_inds
+
+    def forward(self, x):
+        if x.dim() > 2:
+            x = torch.flatten(x, start_dim=1)
+        outs = []
+        bool_inds = self.sample_bool_inds(self.head_drop_prob)
+        for i in range(self.num_heads):
+            if not bool_inds[i] and self.training:
+                continue
+            self.cls_score[i].to(device=x.device)
+            out = self.cls_score[i](x)
+            outs.append(out)
+
+        # output = sum(outs) / len(outs) if avg else outs
+
+        proposal_deltas = self.bbox_pred(x)
+        return outs, proposal_deltas
 
 

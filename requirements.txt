@@ -11,3 +11,4 @@ imagesize
 tensorboard
 opencv-python
 lvis
+fvcore==0.1.2.post20201213

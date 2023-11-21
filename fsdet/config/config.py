@@ -66,7 +66,7 @@ class CfgNode(_CfgNode):
            
 
 
-global_cfg = CfgNode()
+global_cfg = CfgNode(new_allowed=True)
 
 
 def get_cfg() -> CfgNode:
